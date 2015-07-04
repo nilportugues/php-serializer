@@ -14,8 +14,9 @@ class JsonTransformer implements StrategyInterface
     public function serialize($value)
     {
         $this->recursiveUnset($value, ['@type', '@scalar']);
+        $this->recursiveSetValue($value);
 
-        return json_encode($value, JSON_PRETTY_PRINT);
+        return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -38,6 +39,24 @@ class JsonTransformer implements StrategyInterface
     }
 
     /**
+     * @param array $array
+     */
+    private function recursiveSetValue(array &$array)
+    {
+        if (array_key_exists('@value', $array)) {
+            $array = $array['@value'];
+        }
+
+        if (is_array($array)) {
+            foreach ($array as &$value) {
+                if (is_array($value)) {
+                    $this->recursiveSetValue($value);
+                }
+            }
+        }
+    }
+
+    /**
      * @param $value
      *
      * @throws InvalidArgumentException
@@ -54,7 +73,7 @@ $array = [];
 for($i=1; $i<=5; $i++) {
     $array[] = new DateTime("now +$i days");
 }
-
 $serializer = new Serializer(new JsonTransformer());
 
-print_r($serializer->serialize($array));
+header('Content-Type: application/json');
+echo $serializer->serialize($array);
