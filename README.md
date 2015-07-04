@@ -13,4 +13,4 @@ These native functions rely on having the serialized classes loaded and availabl
 
 If the serialized string contains a reference to a class that cannot be instantiated (e.g. class was renamed, moved namespace, removed or changed to abstract) PHP will immediately die with a fatal error.
 
-Is this a problem? Yes it is as now that serialized data is now **unusable**.
+Is this a problem? Yes it is. Serialized data is now **unusable**.
