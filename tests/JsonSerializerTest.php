@@ -4,6 +4,7 @@ namespace NilPortugues\Test\Serializer;
 
 use NilPortugues\Serializer\Serializer;
 use NilPortugues\Serializer\SerializerException;
+use NilPortugues\Serializer\Strategy\JsonStrategy;
 use NilPortugues\Test\Serializer\SupportClasses\AllVisibilities;
 use NilPortugues\Test\Serializer\SupportClasses\ArrayAccessClass;
 use NilPortugues\Test\Serializer\SupportClasses\EmptyClass;
@@ -25,7 +26,7 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->serializer = new Serializer();
+        $this->serializer = new Serializer(new JsonStrategy());
     }
 
     /**
@@ -223,10 +224,29 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
     {
         $traversable = new TraversableClass();
         $traversable->next();
+
+        $serialized = $this->serializer->serialize($traversable);
+        $unserializedCollection = $this->serializer->unserialize($serialized);
+
+        $this->assertEquals($traversable, $unserializedCollection);
+    }
+
+
+    /**
+     * TraversableSerializer serialization.
+     */
+    public function testSerializationOfSplFixedArray()
+    {
+        $traversable = new \SplFixedArray(5);
+        for($i=1;$i<=5;$i++) {
+            $traversable[$i-1] = new \DateTime('now + '.$i.' days');
+        }
+
         $unserializedCollection = $this->serializer->unserialize($this->serializer->serialize($traversable));
 
         $this->assertEquals($traversable, $unserializedCollection);
     }
+
 
     /**
      * ArrayAccess serialization.

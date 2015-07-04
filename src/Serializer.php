@@ -2,7 +2,7 @@
 
 namespace NilPortugues\Serializer;
 
-use NilPortugues\Serializer\Strategy\JsonStrategy;
+use NilPortugues\Serializer\Strategy\StrategyInterface;
 use ReflectionClass;
 use ReflectionException;
 use SplObjectStorage;
@@ -82,12 +82,12 @@ class Serializer
     ];
 
     /**
-     * Constructor.
+     * @param StrategyInterface $strategy
      */
-    public function __construct()
+    public function __construct(StrategyInterface $strategy)
     {
         $this->isHHVM = defined('HHVM_VERSION');
-        $this->serializationStrategy = new JsonStrategy();
+        $this->serializationStrategy = $strategy;
     }
 
     /**
@@ -133,9 +133,19 @@ class Serializer
             return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
         }
 
-        $type = (gettype($value) && $value !== null) ? gettype($value) : 'string';
-        $type = (class_implements('Traversable')) ? get_class($value) : $type;
+        if (is_object($value) && in_array('Traversable', class_implements(get_class($value)))) {
+            $toArray = [];
+            foreach ($value as $k => $v) {
+                $toArray[$k] = $v;
+            }
 
+            return array_merge(
+                [self::CLASS_IDENTIFIER_KEY => get_class($value)],
+                $this->serializeData($toArray)
+            );
+        }
+
+        $type = (gettype($value) && $value !== null) ? gettype($value) : 'string';
         $func = $this->serializationMap[$type];
 
         return $this->$func($value);
