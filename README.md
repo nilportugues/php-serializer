@@ -16,3 +16,27 @@ These native functions rely on having the serialized classes loaded and availabl
 If the serialized string contains a reference to a class that cannot be instantiated (e.g. class was renamed, moved namespace, removed or changed to abstract) PHP will immediately die with a fatal error.
 
 Is this a problem? Yes it is. Serialized data is now **unusable**.
+
+
+<a name="block4"></a>
+# Quality Code [↑](#index_block)
+Testing has been done using PHPUnit and [Travis-CI](https://travis-ci.org). All code has been tested to be compatible from PHP 5.5 up to PHP 7 and [HHVM](http://hhvm.com/).
+
+To run the test suite, you need [Composer](http://getcomposer.org):
+
+```bash
+    php composer.phar install --dev
+    php bin/phpunit
+```
+
+<a name="block5"></a>
+# Author [↑](#index_block)
+Nil Portugués Calderó
+
+ - <contact@nilportugues.com>
+ - [http://nilportugues.com](http://nilportugues.com)
+
+
+<a name="block6"></a>
+#  License [↑](#index_block)
+Code is licensed under the GPLv3 license.
