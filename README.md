@@ -2,10 +2,12 @@
 
 #### What is serialization? 
 
-    In the context of data storage, serialization is the process of translating data structures 
-    or object state into a   format that can be stored (for example, in a file or memory buffer, 
-    or transmitted across a network connection link) and reconstructed later in the same or 
-    another computer environment.
+```
+In the context of data storage, serialization is the process of translating data structures 
+or object state into a   format that can be stored (for example, in a file or memory buffer, 
+or transmitted across a network connection link) and reconstructed later in the same or 
+another computer environment.
+```
     
 #### Why not `serialize()` and `unserialize()`?
 
