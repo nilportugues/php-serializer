@@ -256,7 +256,9 @@ class JsonHalTransformer extends AbstractTransformer
         );
     }
 
-
+    /**
+     * @param array $array
+     */
     private function groupValuesOrMoveOneLevelUp(array &$array)
     {
         $keys = [];
@@ -271,10 +273,9 @@ class JsonHalTransformer extends AbstractTransformer
         }
         $keys = array_unique($keys);
 
-        if (1 === count(array_unique($keys))) {
+        if (1 === count($keys)) {
             $keyName = reset($keys);
             $array = [$this->namespaceAsArrayKey($keyName) => $array];
-            return;
         } else {
             $array = $data;
         }
