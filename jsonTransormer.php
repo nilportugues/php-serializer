@@ -9,7 +9,31 @@ include 'vendor/autoload.php';
  */
 abstract class AbstractTransformer implements StrategyInterface
 {
+    /**
+     * @var ApiMapping[]
+     */
     protected $mappings = [];
+    /**
+     * @var string
+     */
+    protected $firstUrl = '';
+    /**
+     * @var string
+     */
+    protected $lastUrl = '';
+    /**
+     * @var string
+     */
+    protected $prevUrl = '';
+    /**
+     * @var string
+     */
+    protected $nextUrl = '';
+    /**
+     * @var string
+     */
+    protected $selfUrl = '';
+
     /**
      * @param array $apiMappings
      */
@@ -19,11 +43,89 @@ abstract class AbstractTransformer implements StrategyInterface
     }
 
     /**
+     * @param string $self
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setSelfUrl($self)
+    {
+        $this->validateUrl($self);
+        $this->selfUrl = (string)$self;
+    }
+
+    /**
+     * @param $url
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function validateUrl($url)
+    {
+        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('Provided value is not a valid URL');
+        }
+    }
+
+    /**
+     * @param string $firstUrl
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setFirstUrl($firstUrl)
+    {
+        $this->validateUrl($firstUrl);
+        $this->firstUrl = (string)$firstUrl;
+    }
+
+    /**
+     * @param string $lastUrl
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setLastUrl($lastUrl)
+    {
+        $this->validateUrl($lastUrl);
+        $this->lastUrl = (string)$lastUrl;
+    }
+
+    /**
+     * @param $nextUrl
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setNextUrl($nextUrl)
+    {
+        $this->validateUrl($nextUrl);
+        $this->nextUrl = (string)$nextUrl;
+    }
+
+    /**
+     * @param $prevUrl
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setPrevUrl($prevUrl)
+    {
+        $this->validateUrl($prevUrl);
+        $this->prevUrl = (string)$prevUrl;
+    }
+
+    /**
      * @param mixed $value
      *
      * @return string
      */
     abstract public function serialize($value);
+
+    /**
+     * @param $value
+     *
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public function unserialize($value)
+    {
+        throw new \InvalidArgumentException('JsonTransformer does not perform unserializations.');
+    }
 
     /**
      * Converts a underscore string to camelCase.
@@ -37,32 +139,15 @@ abstract class AbstractTransformer implements StrategyInterface
         return str_replace(" ", "", ucwords(strtolower(str_replace(["_", "-"], " ", $string))));
     }
 
-
-    /**
-     * @param        $camel
-     * @param string $splitter
-     *
-     * @return string
-     */
-    protected function camelCaseToUnderscore($camel, $splitter = "_")
-    {
-        $camel = preg_replace(
-            '/(?!^)[[:upper:]][[:lower:]]/',
-            '$0',
-            preg_replace('/(?!^)[[:upper:]]+/', $splitter . '$0', $camel)
-        );
-
-        return strtolower($camel);
-    }
-
     /**
      * @param array $array
      * @param array $unwantedKey
      */
-    protected function recursiveUnset(array &$array, array $unwantedKey) {
+    protected function recursiveUnset(array &$array, array $unwantedKey)
+    {
 
         foreach ($unwantedKey as $key) {
-            if(array_key_exists($key, $array)) {
+            if (array_key_exists($key, $array)) {
                 unset($array[$key]);
             }
         }
@@ -104,10 +189,10 @@ abstract class AbstractTransformer implements StrategyInterface
     /**
      * Renames a key in an array.
      *
-     * @param array    $array       Array with data
-     * @param string   $typeKey     Scope to do the replacement.
-     * @param string   $key         Name of the key holding the value to replace
-     * @param \Closure $callable    Callable with replacement logic
+     * @param array    $array    Array with data
+     * @param string   $typeKey  Scope to do the replacement.
+     * @param string   $key      Name of the key holding the value to replace
+     * @param \Closure $callable Callable with replacement logic
      */
     protected function recursiveChangeKeyValue(array &$array, $typeKey, $key, \Closure $callable)
     {
@@ -155,21 +240,27 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     protected function namespaceAsArrayKey($key)
     {
-        $keys = explode("\\", $key);
+        $keys      = explode("\\", $key);
         $className = end($keys);
 
         return $this->camelCaseToUnderscore($className);
     }
 
     /**
-     * @param $value
+     * @param        $camel
+     * @param string $splitter
      *
-     * @throws InvalidArgumentException
-     * @return array
+     * @return string
      */
-    public function unserialize($value)
+    protected function camelCaseToUnderscore($camel, $splitter = "_")
     {
-        throw new \InvalidArgumentException('JsonTransformer does not perform unserializations.');
+        $camel = preg_replace(
+            '/(?!^)[[:upper:]][[:lower:]]/',
+            '$0',
+            preg_replace('/(?!^)[[:upper:]]+/', $splitter . '$0', $camel)
+        );
+
+        return strtolower($camel);
     }
 }
 
@@ -207,22 +298,11 @@ class JsonTransformer extends AbstractTransformer
 class JsonApiTransformer extends AbstractTransformer
 {
     /**
-     * @var string
+     * @var array
      */
-    private $selfUrl;
+    private $meta = [];
 
-    /**
-     * @param string $self
-     * @throws \InvalidArgumentException
-     */
-    public function setSelfUrl($self)
-    {
-        if (false === filter_var($self, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('Provided value is not a valid URL');
-        }
-
-        $this->selfUrl = (string) $self;
-    }
+    private $apiVersion = '';
 
     /**
      * @param mixed $value
@@ -232,19 +312,126 @@ class JsonApiTransformer extends AbstractTransformer
     public function serialize($value)
     {
         $this->recursiveSetValues($value);
-        $this->recursiveSetTypeAsKey($value);
+        $this->recursiveSetApiDataStructure($value);
+        $this->firstAttributeLevelKeyToDataKey($value);
+
+        //@todo: Implmenent methods
+        foreach($this->mappings as $mapping) {
+            //$this->recursiveUnsetClassKey($value, $mapping->getHiddenProperties(), $mapping->getClassName());
+            //$this->recursiveRenameKeys($value, $mapping->getAliasedProperties(), $mapping->getClassName());
+        }
+
+        $this->recursiveUnset($value, ['@type']);
 
         return json_encode(
             [
-                'data' => $value,
-                'links' => [
-                    'self' => $this->selfUrl,
+                'jsonapi' => ['version' => $this->apiVersion],
+                'data'    => $value,
+                'included' => [
+
                 ],
+                'links'   => [
+                    'self'  => $this->selfUrl,
+                    'first' => $this->firstUrl,
+                    'last'  => $this->lastUrl,
+                    'prev'  => $this->prevUrl,
+                    'next'  => $this->nextUrl,
+                    'related' => '',
+                ],
+                'meta'    => $this->meta,
+                'errors' => '',
+
             ],
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );
     }
 
+    /**
+     * @param array $array
+     */
+    private function recursiveSetApiDataStructure(array &$array)
+    {
+        if (is_array($array)) {
+
+            $id = [];
+            $type = null;
+            $attributes = [];
+
+            foreach ($array as $key => $value) {
+
+                if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
+                    $type = $this->namespaceAsArrayKey($value);
+                }
+                elseif (!empty($array[Serializer::CLASS_IDENTIFIER_KEY])
+                    && true === in_array($key, $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())
+                ) {
+
+                    if (1 === count($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
+                        $id = $value;
+                    } else {
+                        $id = array_merge($id, [$key => $value]);
+                    }
+                }
+                else {
+                    $attributes[$key] = $value;
+                    unset($array[$key]);
+                    if (is_array($value)) {
+                        $this->recursiveSetApiDataStructure($attributes[$key]);
+                    }
+                }
+            }
+
+            $array = [
+                'type' => $type,
+                'id' => $id,
+                'attributes' => $attributes,
+                'relationships' => [
+                    'data' => [
+
+                    ],
+                    'links' => [
+                        'self' => '',
+                        'author' => '',
+                        'related' => 'http://example.com/date_time/'
+                    ]
+                ],
+                'meta' => [
+                    ''
+                ],
+            ];
+
+        }
+    }
+
+    /**
+     * @param array $array
+     */
+    private function firstAttributeLevelKeyToDataKey(array &$array)
+    {
+        if (false !== empty($array['data']['attributes'])) {
+            $array = $array['attributes'];
+
+        }
+    }
+
+    /**
+     * @param string $apiVersion
+     *
+     * @return $this
+     */
+    public function setApiVersion($apiVersion)
+    {
+        $this->apiVersion = $apiVersion;
+    }
+
+    /**
+     * @param string $key
+     * @param        $value
+     */
+    public function addMeta($key, $value)
+    {
+        $this->meta[$key] = $value;
+    }
 }
 
 
@@ -255,50 +442,29 @@ class JsonApiTransformer extends AbstractTransformer
  */
 class JsonHalTransformer extends AbstractTransformer
 {
-    /**
-     * @var string
-     */
-    private $selfUrl;
 
     /**
-     * @var string
+     * @var
      */
-    private $nextUrl;
+    private $curies = [];
 
     /**
-     * @param string $self
-     * @throws \InvalidArgumentException
+     * @param array $curies
      */
-    public function setSelfUrl($self)
-    {
-        if (false === filter_var($self, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('Provided value is not a valid URL');
-        }
-
-        $this->selfUrl = (string) $self;
-    }
-
     public function setCuries(array $curies)
     {
-
-    }
-
-    public function addCury($name, array $curi)
-    {
-
+        $this->curies = array_merge($this->curies, $curies);
     }
 
     /**
-     * @param $nextUrl
-     * @throws \InvalidArgumentException
+     * @param       $name
+     * @param array $curie
      */
-    public function setNextUrl($nextUrl)
+    public function addCurie($name, array $curie)
     {
-        if (false === filter_var($nextUrl, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('Provided value is not a valid URL');
-        }
-        $this->nextUrl = (string) $nextUrl;
+        $this->curies[$name] = $curie;
     }
+
 
     /**
      * @param mixed $value
@@ -317,13 +483,22 @@ class JsonHalTransformer extends AbstractTransformer
             array_merge(
                 $value,
                 [
-                    '_links' => [
-                        'self' => [
+                    '_links'    => [
+                        'self'   => [
                             'href' => $this->selfUrl,
                         ],
-                        'curies' => [],
-                        'next' => [
-                            'href' => '',
+                        'curies' => $this->curies,
+                        'first'  => [
+                            'href' => $this->firstUrl,
+                        ],
+                        'last'   => [
+                            'href' => $this->lastUrl,
+                        ],
+                        'next'   => [
+                            'href' => $this->nextUrl,
+                        ],
+                        'prev'   => [
+                            'href' => $this->prevUrl,
                         ],
                     ],
                     '_embedded' => [],
@@ -340,19 +515,19 @@ class JsonHalTransformer extends AbstractTransformer
     {
         $keys = [];
         $data = [];
-        foreach($array as $value) {
-            if(is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
+        foreach ($array as $value) {
+            if (is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
                 $keys[] = $value[Serializer::CLASS_IDENTIFIER_KEY];
             } else {
                 $data[$this->namespaceAsArrayKey($value[Serializer::CLASS_IDENTIFIER_KEY])] = $value;
-                $keys[] = null;
+                $keys[]                                                                     = null;
             }
         }
         $keys = array_unique($keys);
 
         if (1 === count($keys)) {
             $keyName = reset($keys);
-            $array = [$this->namespaceAsArrayKey($keyName) => $array];
+            $array   = [$this->namespaceAsArrayKey($keyName) => $array];
         } else {
             $array = $data;
         }
@@ -377,15 +552,23 @@ class ApiMapping
     private $idProperties = [];
 
     /**
-     * @param $className
-     * @param null $resourceUrlPattern
+     * @param       $className
+     * @param null  $resourceUrlPattern
      * @param array $idProperties
      */
     public function __construct($className, $resourceUrlPattern = null, array $idProperties = [])
     {
-        $this->className = (string) $className;
-        $this->resourceUrlPattern = (string) $resourceUrlPattern;
-        $this->idProperties = $idProperties;
+        $this->className          = (string)$className;
+        $this->resourceUrlPattern = (string)$resourceUrlPattern;
+        $this->idProperties       = $idProperties;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIdProperties()
+    {
+        return $this->idProperties;
     }
 
     /**
@@ -393,7 +576,7 @@ class ApiMapping
      */
     public function addIdProperty($idProperty)
     {
-        $this->idProperties[] = (string) $idProperty;
+        $this->idProperties[] = (string)$idProperty;
     }
 
     /**
@@ -409,19 +592,13 @@ class ApiMapping
      */
     public function setResourceUrlPattern($resourceUrlPattern)
     {
-        $this->resourceUrlPattern = (string) $resourceUrlPattern;
-    }
-
-    /**
-     * @param array $hidden
-     */
-    public function setHiddenProperties(array $hidden)
-    {
-        $this->hiddenProperties = array_merge($this->hiddenProperties, array_values($hidden));
+        $this->resourceUrlPattern = (string)$resourceUrlPattern;
     }
 
     /**
      * @param string $propertyName
+     *
+     * @throws InvalidArgumentException
      */
     public function hideProperty($propertyName)
     {
@@ -482,10 +659,18 @@ class ApiMapping
     {
         return $this->hiddenProperties;
     }
+
+    /**
+     * @param array $hidden
+     */
+    public function setHiddenProperties(array $hidden)
+    {
+        $this->hiddenProperties = array_merge($this->hiddenProperties, array_values($hidden));
+    }
 }
 
 $array = [];
-for($i=1; $i<=5; $i++) {
+for ($i = 1; $i <= 5; $i++) {
     $array[] = new DateTime("now +$i days");
 }
 
@@ -495,10 +680,16 @@ $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
 
 $apiMappingCollection = [
-    $dateTimeMapping
+    $dateTimeMapping->getClassName() => $dateTimeMapping
 ];
 
-header('Content-Type: application/json');
+
+header('Content-Type: application/vnd.api+json');
+
+
+print_r($apiMappingCollection);
+echo PHP_EOL;
+echo PHP_EOL;
 
 echo '-------------------------------------------------------------';
 echo 'JSON Format';
@@ -514,7 +705,15 @@ echo '-------------------------------------------------------------';
 echo PHP_EOL;
 echo PHP_EOL;
 $serializer = new JsonApiTransformer($apiMappingCollection);
+$serializer->setApiVersion('1.0.1');
 $serializer->setSelfUrl('http://example.com/date_time/');
+$serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
+$serializer->addMeta(
+    'author',
+    [
+        ['name' => 'Nil Portugués Calderó', 'email' => 'contact@nilportugues.com']
+    ]
+);
 
 echo (new Serializer($serializer))->serialize($array);
 echo PHP_EOL;
@@ -527,5 +726,6 @@ echo PHP_EOL;
 
 $serializer = new JsonHalTransformer($apiMappingCollection);
 $serializer->setSelfUrl('http://example.com/date_time/');
+$serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
 
 echo (new Serializer($serializer))->serialize($array);
