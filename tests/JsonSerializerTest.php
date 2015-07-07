@@ -231,22 +231,20 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($traversable, $unserializedCollection);
     }
 
-
     /**
      * TraversableSerializer serialization.
      */
     public function testSerializationOfSplFixedArray()
     {
         $traversable = new \SplFixedArray(5);
-        for($i=1;$i<=5;$i++) {
-            $traversable[$i-1] = new \DateTime('now + '.$i.' days');
+        for ($i = 1;$i <= 5;++$i) {
+            $traversable[$i - 1] = new \DateTime('now + '.$i.' days');
         }
 
         $unserializedCollection = $this->serializer->unserialize($this->serializer->serialize($traversable));
 
         $this->assertEquals($traversable, $unserializedCollection);
     }
-
 
     /**
      * ArrayAccess serialization.
