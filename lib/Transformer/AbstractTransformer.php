@@ -3,7 +3,9 @@
 namespace NilPortugues\Api\Transformer;
 
 use NilPortugues\Api\Mapping\Mapping;
+use NilPortugues\Serializer\Serializer;
 use NilPortugues\Serializer\Strategy\StrategyInterface;
+use InvalidArgumentException;
 
 abstract class AbstractTransformer implements StrategyInterface
 {
@@ -54,7 +56,7 @@ abstract class AbstractTransformer implements StrategyInterface
     /**
      * @param $url
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function validateUrl($url)
     {
@@ -123,7 +125,7 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function unserialize($value)
     {
-        throw new \InvalidArgumentException('JsonTransformer does not perform unserializations.');
+        throw new InvalidArgumentException(sprintf('%s does not perform unserializations.', __CLASS__));
     }
 
     /**

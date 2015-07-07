@@ -197,25 +197,20 @@ class JsonApiTransformer extends AbstractTransformer
             foreach ($array as $key => $value) {
                 if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
                     $type = $this->namespaceAsArrayKey($value);
-                } elseif (!empty($array[Serializer::CLASS_IDENTIFIER_KEY])
-                    && true === in_array(
-                        $key,
-                        $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties()
-                    )
-                ) {
-                    if (1 === count($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
-                        $id = $value;
-                    } else {
-                        $id = array_merge($id, [$key => $value]);
-                    }
+                    continue;
+                }
+
+                if ($this->isIdentifierKey($array, $key)) {
+                    $id = $this->setIdentifierKey($array, $value, $id, $key);
                     $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
                     $relationships = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getRelationships();
-                } else {
-                    $attributes[$key] = $value;
-                    unset($array[$key]);
-                    if (is_array($value)) {
-                        $this->recursiveSetApiDataStructure($attributes[$key]);
-                    }
+                    continue;
+                }
+
+                $attributes[$key] = $value;
+                unset($array[$key]);
+                if (is_array($value)) {
+                    $this->recursiveSetApiDataStructure($attributes[$key]);
                 }
             }
             $array = $this->buildApiDataStructureArray($type, $id, $attributes, $relationships, $meta);
@@ -223,17 +218,49 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
-     * @param string     $type
+     * @param array $array
+     * @param $key
+     * @return bool
+     */
+    private function isIdentifierKey(array &$array, $key)
+    {
+        return !empty($array[Serializer::CLASS_IDENTIFIER_KEY])
+        && true === in_array(
+            $key,
+            $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties()
+        );
+    }
+
+    /**
+     * @param array $array
+     * @param $value
+     * @param $id
+     * @param $key
+     * @return array
+     */
+    private function setIdentifierKey(array &$array, $value, $id, $key)
+    {
+        if (1 === count($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
+            $id = $value;
+            return $id;
+        } else {
+            $id = array_merge($id, [$key => $value]);
+            return $id;
+        }
+    }
+
+    /**
+     * @param string $type
      * @param int|string $id
-     * @param array      $attributes
-     * @param array      $relationships
-     * @param array      $meta
+     * @param array $attributes
+     * @param array $relationships
+     * @param array $meta
      *
      * @return array
      */
     private function buildApiDataStructureArray($type, $id, array $attributes, array $relationships, array $meta)
     {
-        $newData = ['type' => $type,  'id' => $id];
+        $newData = ['type' => $type, 'id' => $id];
 
         if (!empty($attributes)) {
             $newData['attributes'] = $attributes;
@@ -310,7 +337,7 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
-     * @param string       $key
+     * @param string $key
      * @param array|string $value
      */
     public function addMeta($key, $value)
