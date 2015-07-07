@@ -191,6 +191,8 @@ class JsonApiTransformer extends AbstractTransformer
             $id = [];
             $type = null;
             $attributes = [];
+            $meta = [];
+            $relationships = [];
 
             foreach ($array as $key => $value) {
                 if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
@@ -206,6 +208,8 @@ class JsonApiTransformer extends AbstractTransformer
                     } else {
                         $id = array_merge($id, [$key => $value]);
                     }
+                    $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
+                    $relationships = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getRelationships();
                 } else {
                     $attributes[$key] = $value;
                     unset($array[$key]);
@@ -214,17 +218,36 @@ class JsonApiTransformer extends AbstractTransformer
                     }
                 }
             }
-
-            $array = [
-                'type' => $type,
-                'id' => $id,
-                'attributes' => $attributes,
-                'relationships' => $this->relationships,
-                'meta' => [
-                    '',
-                ],
-            ];
+            $array = $this->buildApiDataStructureArray($type, $id, $attributes, $relationships, $meta);
         }
+    }
+
+    /**
+     * @param string     $type
+     * @param int|string $id
+     * @param array      $attributes
+     * @param array      $relationships
+     * @param array      $meta
+     *
+     * @return array
+     */
+    private function buildApiDataStructureArray($type, $id, array $attributes, array $relationships, array $meta)
+    {
+        $newData = ['type' => $type,  'id' => $id];
+
+        if (!empty($attributes)) {
+            $newData['attributes'] = $attributes;
+        }
+
+        if (!empty($relationships)) {
+            $newData['relationships'] = $relationships;
+        }
+
+        if (!empty($meta)) {
+            $newData['meta'] = $meta;
+        }
+
+        return $newData;
     }
 
     /**
@@ -287,8 +310,8 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
-     * @param string $key
-     * @param        $value
+     * @param string       $key
+     * @param array|string $value
      */
     public function addMeta($key, $value)
     {

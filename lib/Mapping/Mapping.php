@@ -2,6 +2,8 @@
 
 namespace NilPortugues\Api\Mapping;
 
+use InvalidArgumentException;
+
 class Mapping
 {
     /**
@@ -17,6 +19,16 @@ class Mapping
      * @var array
      */
     private $idProperties = [];
+
+    /**
+     * @var array
+     */
+    private $relationships = [];
+
+    /**
+     * @var array
+     */
+    private $metaData = [];
 
     /**
      * @param       $className
@@ -132,5 +144,46 @@ class Mapping
     public function setHiddenProperties(array $hidden)
     {
         $this->hiddenProperties = array_merge($this->hiddenProperties, array_values($hidden));
+    }
+
+    /**
+     * @return array
+     */
+    public function getRelationships()
+    {
+        return $this->relationships;
+    }
+
+    /**
+     * @param array $relationships
+     */
+    public function setRelationships(array $relationships)
+    {
+        $this->relationships = $relationships;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetaData()
+    {
+        return $this->metaData;
+    }
+
+    /**
+     * @param array $metaData
+     */
+    public function setMetaData(array $metaData)
+    {
+        $this->metaData = $metaData;
+    }
+
+    /**
+     * @param string $key
+     * @param $value
+     */
+    public function addMetaData($key, $value)
+    {
+        $this->metaData[$key] = $value;
     }
 }

@@ -23,7 +23,7 @@ $apiMappingCollection = [
 ];
 
 
-header('Content-Type: application/vnd.api+json');
+header('Content-Type: application/vnd.api+json; charset=utf-8');
 
 
 print_r($apiMappingCollection);
