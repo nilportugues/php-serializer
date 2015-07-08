@@ -31,6 +31,11 @@ class Mapping
     private $metaData = [];
 
     /**
+     * @var string
+     */
+    private $resourceUrlTitlePattern = '';
+
+    /**
      * @param       $className
      * @param null  $resourceUrlPattern
      * @param array $idProperties
@@ -40,6 +45,22 @@ class Mapping
         $this->className = (string) $className;
         $this->resourceUrlPattern = (string) $resourceUrlPattern;
         $this->idProperties = $idProperties;
+    }
+
+    /**
+     * @param $titleStringFormat
+     */
+    public function setResourceUrlTitle($titleStringFormat)
+    {
+        $this->resourceUrlTitlePattern = (string) $titleStringFormat;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResourceUrlTitlePattern()
+    {
+        return $this->resourceUrlTitlePattern;
     }
 
     /**

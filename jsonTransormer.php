@@ -1,7 +1,7 @@
 <?php
 use NilPortugues\Api\Mapping\Mapping;
 use NilPortugues\Api\Transformer\Json\JsonApiTransformer;
-use NilPortugues\Api\Transformer\Json\JsonHalTransformer;
+use NilPortugues\Api\Transformer\Json\HalJsonTransformer;
 use NilPortugues\Api\Transformer\Json\JsonTransformer;
 use NilPortugues\Serializer\Serializer;
 
@@ -62,7 +62,7 @@ echo '-------------------------------------------------------------';
 echo PHP_EOL;
 echo PHP_EOL;
 
-$serializer = new JsonHalTransformer($apiMappingCollection);
+$serializer = new HalJsonTransformer($apiMappingCollection);
 $serializer->setSelfUrl('http://example.com/date_time/');
 $serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
 

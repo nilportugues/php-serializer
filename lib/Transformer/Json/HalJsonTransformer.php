@@ -10,7 +10,7 @@ use NilPortugues\Serializer\Serializer;
  *
  * @link http://stateless.co/hal_specification.html
  */
-class JsonHalTransformer extends AbstractTransformer
+class HalJsonTransformer extends AbstractTransformer
 {
     /**
      * @var

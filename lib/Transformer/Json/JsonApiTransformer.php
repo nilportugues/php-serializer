@@ -206,13 +206,17 @@ class JsonApiTransformer extends AbstractTransformer
                     $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
                     $relationships = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getRelationships();
 
-                    $links = [
-                        'self' => str_replace(
-                            $this->getUrlReplacementKeys($array),
-                            $this->getUrlReplacementValues($array),
-                            $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl()
-                        )
-                    ];
+                    $links['self'] = str_replace(
+                        $this->getUrlReplacementKeys($array),
+                        $this->getUrlReplacementValues($array),
+                        $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl()
+                    );
+
+                    $title = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrlTitlePattern();
+                    if(!empty($title)) {
+                        $links['title'] = $this->setUrlTitle($title, $array);
+                    }
+
                     continue;
                 }
 
@@ -224,6 +228,19 @@ class JsonApiTransformer extends AbstractTransformer
             }
             $array = $this->buildApiDataStructureArray($type, $id, $attributes, $relationships, $links, $meta);
         }
+    }
+
+    /**
+     * @param string $titleString
+     * @param array $array
+     * @return mixed
+     */
+    private function setUrlTitle($titleString, array &$array)
+    {
+        foreach($array as $key => $value) {
+            $titleString = str_replace('{'.$key.'}', $value, $titleString);
+        }
+        return $titleString;
     }
 
     /**
