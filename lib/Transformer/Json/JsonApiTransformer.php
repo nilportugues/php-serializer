@@ -193,6 +193,7 @@ class JsonApiTransformer extends AbstractTransformer
             $attributes = [];
             $meta = [];
             $relationships = [];
+            $links = [];
 
             foreach ($array as $key => $value) {
                 if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
@@ -204,6 +205,14 @@ class JsonApiTransformer extends AbstractTransformer
                     $id = $this->setIdentifierKey($array, $value, $id, $key);
                     $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
                     $relationships = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getRelationships();
+
+                    $links = [
+                        'self' => str_replace(
+                            $this->getUrlReplacementKeys($array),
+                            $this->getUrlReplacementValues($array),
+                            $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl()
+                        )
+                    ];
                     continue;
                 }
 
@@ -213,8 +222,38 @@ class JsonApiTransformer extends AbstractTransformer
                     $this->recursiveSetApiDataStructure($attributes[$key]);
                 }
             }
-            $array = $this->buildApiDataStructureArray($type, $id, $attributes, $relationships, $meta);
+            $array = $this->buildApiDataStructureArray($type, $id, $attributes, $relationships, $links, $meta);
         }
+    }
+
+    /**
+     * @param array $array
+     *
+     * @return array
+     */
+    private function getUrlReplacementKeys(array $array)
+    {
+        $keys = [];
+        foreach($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties() as $k) {
+            $keys[] = sprintf('{%s}', $k);
+        }
+        return $keys;
+    }
+
+    /**
+     * @param array $array
+     *
+     * @return array
+     */
+    private function getUrlReplacementValues(array $array)
+    {
+        $data = [];
+        foreach($array as $k => $v) {
+            if(in_array($k, $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
+                $data[] = $v;
+            }
+        }
+        return $data;
     }
 
     /**
@@ -258,7 +297,7 @@ class JsonApiTransformer extends AbstractTransformer
      *
      * @return array
      */
-    private function buildApiDataStructureArray($type, $id, array $attributes, array $relationships, array $meta)
+    private function buildApiDataStructureArray($type, $id, array $attributes, array $relationships, array $links, array $meta)
     {
         $newData = ['type' => $type, 'id' => $id];
 
@@ -268,6 +307,10 @@ class JsonApiTransformer extends AbstractTransformer
 
         if (!empty($relationships)) {
             $newData['relationships'] = $relationships;
+        }
+
+        if (!empty($links)) {
+            $newData['links'] = $links;
         }
 
         if (!empty($meta)) {

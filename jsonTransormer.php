@@ -14,7 +14,7 @@ for ($i = 1; $i <= 5; $i++) {
 }
 
 
-$dateTimeMapping = new Mapping('DateTime', 'http://example.com/date-time/%s', ['timezone_type']);
+$dateTimeMapping = new Mapping('DateTime', 'http://example.com/date-time/{timezone_type}', ['timezone_type']);
 $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
 
@@ -26,7 +26,6 @@ $apiMappingCollection = [
 header('Content-Type: application/vnd.api+json; charset=utf-8');
 
 
-print_r($apiMappingCollection);
 echo PHP_EOL;
 echo PHP_EOL;
 
