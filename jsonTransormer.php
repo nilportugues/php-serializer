@@ -100,7 +100,7 @@ class Comment
      * @param $comment
      * @param UserId $userId
      */
-    public function __construct(CommentId $id, $comment, UserId $userId)
+    public function __construct(CommentId $id, $comment, User $userId)
     {
         $this->id = $id;
         $this->comment = $comment;
@@ -222,13 +222,14 @@ $post = new PostAggregate(
 
 print_r($post);
 
-$postMapping = new Mapping('PostAggregate', '/posts/{id}', ['id']);
+$postMapping = new Mapping('PostAggregate', 'http://api.example.com/v1/posts/{id}', ['id']);
 $postIdMapping = new Mapping('PostId', null, ['id']);
 
-$userMapping = new Mapping('User', '/users/{id}', ['id']);
+$userMapping = new Mapping('User', 'http://api.example.com/v1/users/{id}', ['id']);
 $userIdMapping = new Mapping('UserId',  null, ['id']);
 
-$commentMapping = new Mapping('Comment', '/comments/{id}', ['id']);
+$commentMapping = new Mapping('Comment', 'http://api.example.com/v1/comments/{id}', ['id']);
+
 $commentIdMapping = new Mapping('CommentId', null, ['id']);
 
 
@@ -239,7 +240,7 @@ for ($i = 1; $i <= 5; $i++) {
 }
 
 
-$dateTimeMapping = new Mapping('DateTime', 'http://example.com/date-time/{timezone_type}', ['timezone_type']);
+$dateTimeMapping = new Mapping('DateTime', 'http://api.example.com/v1/date-time/{timezone_type}', ['timezone_type']);
 $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
 */
@@ -275,14 +276,9 @@ echo PHP_EOL;
 echo PHP_EOL;
 $serializer = new JsonApiTransformer($apiMappingCollection);
 $serializer->setApiVersion('1.0.1');
-$serializer->setSelfUrl('http://example.com/date_time/');
-$serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
-$serializer->addMeta(
-    'author',
-    [
-        ['name' => 'Nil Portugués Calderó', 'email' => 'contact@nilportugues.com']
-    ]
-);
+$serializer->setSelfUrl('http://api.example.com/v1/posts/1');
+$serializer->setNextUrl('http://api.example.com/v1/posts/2');
+$serializer->addMeta('author', [['name' => 'Nil Portugués Calderó', 'email' => 'contact@nilportugues.com']]);
 
 echo (new Serializer($serializer))->serialize($post);
 echo PHP_EOL;
@@ -297,7 +293,7 @@ echo PHP_EOL;
 echo PHP_EOL;
 
 $serializer = new HalJsonTransformer($apiMappingCollection);
-$serializer->setSelfUrl('http://example.com/date_time/');
-$serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
+$serializer->setSelfUrl('http://api.example.com/v1/date_time/');
+$serializer->setNextUrl('http://api.example.com/v1/date_time/?page=2&amount=20');
 
 echo (new Serializer($serializer))->serialize($post);

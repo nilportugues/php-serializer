@@ -184,6 +184,14 @@ class Mapping
     }
 
     /**
+     * @param $key
+     * @param $value
+     */
+    public function addRelationship($key, $value)
+    {
+        $this->relationships[$key] = $value;
+    }
+    /**
      * @return array
      */
     public function getMetaData()

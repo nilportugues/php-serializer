@@ -199,33 +199,41 @@ class JsonApiTransformer extends AbstractTransformer
             foreach ($array as $key => $value) {
                 if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
                     $type = $this->namespaceAsArrayKey($value);
-
                 } elseif ($this->isIdentifierKey($array, $key)) {
-
                     $id = $this->setIdentifierKey($value, $id);
-
                     $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
-
-
                     $resourceUrl = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl();
-                    if(!empty($resourceUrl)) {
-                        $replacementKeys = $this->getUrlReplacementKeys($array);
-                        $replacementValues =  $this->getUrlReplacementValues($array);
-                        $links['self'] = str_replace($replacementKeys,$replacementValues, $resourceUrl);
 
+                    //set self link
+                    if (!empty($resourceUrl)) {
+                        $replacementKeys = $this->getUrlReplacementKeys($array);
+                        $replacementValues = $this->getUrlReplacementValues($array);
+                        $links['self'] = str_replace($replacementKeys, $replacementValues, $resourceUrl);
                     }
 
                     $title = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrlTitlePattern();
-                    if(!empty($title)) {
+                    if (!empty($title)) {
                         $links['title'] = $this->setUrlTitle($title, $array);
                     }
-                }
-                else {
-                    unset($array[$key]);
-                    if (is_array($value) ) {
+                } else {
+                    if (is_array($value)) {
                         $this->recursiveSetApiDataStructure($value, $included);
                         if (array_key_exists('type', $value)  && !empty($value['type']) && !empty($value['id'])) {
                             $included[] = $value;
+
+                            $relationshipLinks = [];
+                            if (array_key_exists($value['type'], $this->mappings)) {
+                                $relationshipLinks = $this->mappings[$value['type']]->getRelationships();
+                            }
+
+                            $relationships[] = $this->buildApiDataStructureArray(
+                                $value['type'],
+                                $value['id'],
+                                [],
+                                [],
+                                $relationshipLinks,
+                                []
+                            );
                             unset($value);
                         }
                     } else {
@@ -239,14 +247,16 @@ class JsonApiTransformer extends AbstractTransformer
 
     /**
      * @param string $titleString
-     * @param array $array
+     * @param array  $array
+     *
      * @return mixed
      */
     private function setUrlTitle($titleString, array &$array)
     {
-        foreach($array as $key => $value) {
+        foreach ($array as $key => $value) {
             $titleString = str_replace('{'.$key.'}', $value, $titleString);
         }
+
         return $titleString;
     }
 
@@ -258,9 +268,10 @@ class JsonApiTransformer extends AbstractTransformer
     private function getUrlReplacementKeys(array $array)
     {
         $keys = [];
-        foreach($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties() as $k) {
+        foreach ($this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties() as $k) {
             $keys[] = sprintf('{%s}', $k);
         }
+
         return $keys;
     }
 
@@ -272,9 +283,9 @@ class JsonApiTransformer extends AbstractTransformer
     private function getUrlReplacementValues(array $array)
     {
         $data = [];
-        foreach($array as $k => &$v) {
-            if(in_array($k, $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
-                if(is_array($v)) {
+        foreach ($array as $k => &$v) {
+            if (in_array($k, $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getIdProperties())) {
+                if (is_array($v)) {
                     unset($v[Serializer::CLASS_IDENTIFIER_KEY]);
                     $data = array_merge($data, $v);
                 } else {
@@ -289,6 +300,7 @@ class JsonApiTransformer extends AbstractTransformer
     /**
      * @param array $array
      * @param $key
+     *
      * @return bool
      */
     private function isIdentifierKey(array &$array, $key)
@@ -304,31 +316,31 @@ class JsonApiTransformer extends AbstractTransformer
     /**
      * @param $value
      * @param $id
+     *
      * @return string
      */
     private function setIdentifierKey($value, $id)
     {
         if (is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
             unset($value[Serializer::CLASS_IDENTIFIER_KEY]);
+
             return implode('.', $value);
         }
 
         return $id;
-
     }
 
     /**
-     * @param string $type
+     * @param string     $type
      * @param int|string $id
-     * @param array $attributes
-     * @param array $relationships
-     * @param array $meta
+     * @param array      $attributes
+     * @param array      $relationships
+     * @param array      $meta
      *
      * @return array
      */
     private function buildApiDataStructureArray($type, $id, array $attributes, array $relationships, array $links, array $meta)
     {
-
         $newData = ['type' => $type, 'id' => $id];
 
         if (!empty($attributes)) {
@@ -353,6 +365,7 @@ class JsonApiTransformer extends AbstractTransformer
     /**
      * @param array $array
      * @param array $included
+     *
      * @return array
      */
     private function buildResponse(array &$array, array &$included)
@@ -404,7 +417,7 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
-     * @param string $key
+     * @param string       $key
      * @param array|string $value
      */
     public function addMeta($key, $value)
