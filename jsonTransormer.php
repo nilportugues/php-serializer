@@ -7,7 +7,232 @@ use NilPortugues\Serializer\Serializer;
 
 include 'vendor/autoload.php';
 
+class UserId
+{
+    /**
+     * @param $id
+     */
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+class User
+{
+    /**
+     * @var UserId
+     */
+    private $id;
+    /**
+     * @var
+     */
+    private $name;
+
+    /**
+     * @param UserId $id
+     * @param $name
+     */
+    public function __construct(UserId $id, $name)
+    {
+        $this->id = $id;
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+}
+
+class CommentId
+{
+    /**
+     * @param $id
+     */
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+
+class Comment
+{
+    /**
+     * @var
+     */
+    private $id;
+    /**
+     * @var
+     */
+    private $comment;
+
+    /**
+     * @param $id
+     * @param $comment
+     * @param UserId $userId
+     */
+    public function __construct(CommentId $id, $comment, UserId $userId)
+    {
+        $this->id = $id;
+        $this->comment = $comment;
+        $this->userId = $userId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @return UserId
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+}
+
+
+class PostId
+{
+    /**
+     * @param $id
+     */
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+class PostAggregate
+{
+    /**
+     * @param PostId $id
+     * @param $title
+     * @param $content
+     * @param User $user
+     * @param array $comments
+     */
+    public function __construct(PostId $id, $title, $content, User $user, array $comments)
+    {
+        $this->id = $id;
+        $this->title = $title;
+        $this->content = $content;
+        $this->user = $user;
+        $this->comments = $comments;
+    }
+
+    /**
+     * @return array
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * @return PostId
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return UserId
+     */
+    public function getUserId()
+    {
+        return $this->user;
+    }
+}
+
+$post = new PostAggregate(
+    new PostId(1),
+    "Hello World",
+    "Your first post",
+    new User(new UserId(1), 'John Doe'),
+    [new Comment(new CommentId(1), "Have no fear, sers, your king is safe.", new UserId(2))]
+);
+
+print_r($post);
+
+$postMapping = new Mapping('PostAggregate', '/posts/{id}', ['id']);
+$postIdMapping = new Mapping('PostId', null, ['id']);
+
+$userMapping = new Mapping('User', '/users/{id}', ['id']);
+$userIdMapping = new Mapping('UserId',  null, ['id']);
+
+$commentMapping = new Mapping('Comment', '/comments/{id}', ['id']);
+$commentIdMapping = new Mapping('CommentId', null, ['id']);
+
+
+/*
 $array = [];
 for ($i = 1; $i <= 5; $i++) {
     $array[] = new DateTime("now +$i days");
@@ -17,9 +242,15 @@ for ($i = 1; $i <= 5; $i++) {
 $dateTimeMapping = new Mapping('DateTime', 'http://example.com/date-time/{timezone_type}', ['timezone_type']);
 $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
-
+*/
 $apiMappingCollection = [
-    $dateTimeMapping->getClassName() => $dateTimeMapping
+    //$dateTimeMapping->getClassName() => $dateTimeMapping
+    $postMapping->getClassName() => $postMapping,
+    $postIdMapping->getClassName() => $postIdMapping,
+    $userMapping->getClassName() => $userMapping,
+    $userIdMapping->getClassName() => $userIdMapping,
+    $commentMapping->getClassName() => $commentMapping,
+    $commentIdMapping->getClassName() => $commentIdMapping,
 ];
 
 
@@ -34,7 +265,7 @@ echo 'JSON Format';
 echo '-------------------------------------------------------------';
 echo PHP_EOL;
 echo PHP_EOL;
-echo (new Serializer(new JsonTransformer()))->serialize($array);
+echo (new Serializer(new JsonTransformer()))->serialize($post);
 echo PHP_EOL;
 echo PHP_EOL;
 echo '-------------------------------------------------------------';
@@ -53,9 +284,12 @@ $serializer->addMeta(
     ]
 );
 
-echo (new Serializer($serializer))->serialize($array);
+echo (new Serializer($serializer))->serialize($post);
 echo PHP_EOL;
 echo PHP_EOL;
+
+
+die();
 echo '-------------------------------------------------------------';
 echo 'JSON+HAL API Format';
 echo '-------------------------------------------------------------';
@@ -66,4 +300,4 @@ $serializer = new HalJsonTransformer($apiMappingCollection);
 $serializer->setSelfUrl('http://example.com/date_time/');
 $serializer->setNextUrl('http://example.com/date_time/?page=2&amount=20');
 
-echo (new Serializer($serializer))->serialize($array);
+echo (new Serializer($serializer))->serialize($post);
