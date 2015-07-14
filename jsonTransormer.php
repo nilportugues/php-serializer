@@ -14,15 +14,15 @@ class UserId
      */
     public function __construct($id)
     {
-        $this->id = $id;
+        $this->userId = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getUserId()
     {
-        return $this->id;
+        return $this->userId;
     }
 }
 
@@ -31,7 +31,7 @@ class User
     /**
      * @var UserId
      */
-    private $id;
+    private $userId;
     /**
      * @var
      */
@@ -43,16 +43,16 @@ class User
      */
     public function __construct(UserId $id, $name)
     {
-        $this->id = $id;
+        $this->userId = $id;
         $this->name = $name;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getUserId()
     {
-        return $this->id;
+        return $this->userId;
     }
 
     /**
@@ -71,15 +71,15 @@ class CommentId
      */
     public function __construct($id)
     {
-        $this->id = $id;
+        $this->commentId = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getCommentId()
     {
-        return $this->id;
+        return $this->commentId;
     }
 }
 
@@ -89,30 +89,36 @@ class Comment
     /**
      * @var
      */
-    private $id;
+    private $commentId;
     /**
-     * @var
+     * @var array
+     */
+
+    private $dates;
+    /**
+     * @var string
      */
     private $comment;
 
     /**
-     * @param $id
-     * @param $comment
-     * @param UserId $userId
+     * @param CommentId $id
+     * @param           $comment
+     * @param User      $user
      */
-    public function __construct(CommentId $id, $comment, User $userId)
+    public function __construct(CommentId $id, $comment, User $user, array $dates)
     {
-        $this->id = $id;
+        $this->commentId = $id;
         $this->comment = $comment;
-        $this->userId = $userId;
+        $this->user = $user;
+        $this->dates = $dates;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getCommentId()
     {
-        return $this->id;
+        return $this->commentId;
     }
 
     /**
@@ -126,9 +132,9 @@ class Comment
     /**
      * @return UserId
      */
-    public function getUserId()
+    public function getUser()
     {
-        return $this->userId;
+        return $this->user;
     }
 }
 
@@ -140,19 +146,19 @@ class PostId
      */
     public function __construct($id)
     {
-        $this->id = $id;
+        $this->postId = $id;
     }
 
     /**
      * @return mixed
      */
-    public function getId()
+    public function getPostId()
     {
-        return $this->id;
+        return $this->postId;
     }
 }
 
-class PostAggregate
+class Post
 {
     /**
      * @param PostId $id
@@ -163,10 +169,10 @@ class PostAggregate
      */
     public function __construct(PostId $id, $title, $content, User $user, array $comments)
     {
-        $this->id = $id;
+        $this->postId = $id;
         $this->title = $title;
         $this->content = $content;
-        $this->user = $user;
+        $this->author = $user;
         $this->comments = $comments;
     }
 
@@ -190,9 +196,9 @@ class PostAggregate
     /**
      * @return PostId
      */
-    public function getId()
+    public function getPostId()
     {
-        return $this->id;
+        return $this->postId;
     }
 
     /**
@@ -208,29 +214,37 @@ class PostAggregate
      */
     public function getUserId()
     {
-        return $this->user;
+        return $this->author;
     }
 }
 
-$post = new PostAggregate(
-    new PostId(1),
+$comment1 = new Comment(
+    new CommentId(1000),
+    "Have no fear, sers, your king is safe.",
+    new User(new UserId(2), "Barristan Selmy"),
+    //['created_at' => new DateTime('now -35 minutes'), 'accepted_at' => new DateTime()]
+    ['created_at' => (new DateTime('now -35 minutes'))->format('c'), 'accepted_at' => (new DateTime())->format('c')]
+);
+
+$post = new Post(
+    new PostId(9),
     "Hello World",
     "Your first post",
     new User(new UserId(1), 'John Doe'),
-    [new Comment(new CommentId(1), "Have no fear, sers, your king is safe.", new UserId(2))]
+    [
+        $comment1
+    ]
 );
 
-print_r($post);
 
-$postMapping = new Mapping('PostAggregate', 'http://api.example.com/v1/posts/{id}', ['id']);
-$postIdMapping = new Mapping('PostId', null, ['id']);
+$postMapping = new Mapping('Post', 'http://api.example.com/v1/posts/{postId}', ['postId']);
+$postIdMapping = new Mapping('PostId', 'http://api.example.com/v1/posts/{postId}', ['postId']);
 
-$userMapping = new Mapping('User', 'http://api.example.com/v1/users/{id}', ['id']);
-$userIdMapping = new Mapping('UserId',  null, ['id']);
+$userMapping = new Mapping('User', 'http://api.example.com/v1/users/{userId}', ['userId']);
+$userIdMapping = new Mapping('UserId',  'http://api.example.com/v1/users/{userId}', ['userId']);
 
-$commentMapping = new Mapping('Comment', 'http://api.example.com/v1/comments/{id}', ['id']);
-
-$commentIdMapping = new Mapping('CommentId', null, ['id']);
+$commentMapping = new Mapping('Comment', 'http://api.example.com/v1/comments/{commentId}', ['commentId']);
+$commentIdMapping = new Mapping('CommentId', 'http://api.example.com/v1/comments/{commentId}', ['commentId']);
 
 
 /*
@@ -257,9 +271,6 @@ $apiMappingCollection = [
 
 header('Content-Type: application/vnd.api+json; charset=utf-8');
 
-
-echo PHP_EOL;
-echo PHP_EOL;
 
 echo '-------------------------------------------------------------';
 echo 'JSON Format';
