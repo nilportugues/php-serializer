@@ -237,14 +237,14 @@ $post = new Post(
 );
 
 
-$postMapping = new Mapping('Post', 'http://api.example.com/v1/posts/{postId}', ['postId']);
-$postIdMapping = new Mapping('PostId', 'http://api.example.com/v1/posts/{postId}', ['postId']);
+$postMapping = new Mapping('Post', '/posts/{postId}', ['postId']);
+$postIdMapping = new Mapping('PostId', '/posts/{postId}', ['postId']);
 
-$userMapping = new Mapping('User', 'http://api.example.com/v1/users/{userId}', ['userId']);
-$userIdMapping = new Mapping('UserId',  'http://api.example.com/v1/users/{userId}', ['userId']);
+$userMapping = new Mapping('User', '/users/{userId}', ['userId']);
+$userIdMapping = new Mapping('UserId',  '/users/{userId}', ['userId']);
 
-$commentMapping = new Mapping('Comment', 'http://api.example.com/v1/comments/{commentId}', ['commentId']);
-$commentIdMapping = new Mapping('CommentId', 'http://api.example.com/v1/comments/{commentId}', ['commentId']);
+$commentMapping = new Mapping('Comment', '/comments/{commentId}', ['commentId']);
+$commentIdMapping = new Mapping('CommentId', '/comments/{commentId}', ['commentId']);
 
 
 /*
@@ -254,7 +254,7 @@ for ($i = 1; $i <= 5; $i++) {
 }
 
 
-$dateTimeMapping = new Mapping('DateTime', 'http://api.example.com/v1/date-time/{timezone_type}', ['timezone_type']);
+$dateTimeMapping = new Mapping('DateTime', '/date-time/{timezone_type}', ['timezone_type']);
 $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
 */
@@ -287,8 +287,8 @@ echo PHP_EOL;
 echo PHP_EOL;
 $serializer = new JsonApiTransformer($apiMappingCollection);
 $serializer->setApiVersion('1.0.1');
-$serializer->setSelfUrl('http://api.example.com/v1/posts/1');
-$serializer->setNextUrl('http://api.example.com/v1/posts/2');
+$serializer->setSelfUrl('/posts/1');
+$serializer->setNextUrl('/posts/2');
 $serializer->addMeta('author', [['name' => 'Nil Portugués Calderó', 'email' => 'contact@nilportugues.com']]);
 
 echo (new Serializer($serializer))->serialize($post);
@@ -304,7 +304,7 @@ echo PHP_EOL;
 echo PHP_EOL;
 
 $serializer = new HalJsonTransformer($apiMappingCollection);
-$serializer->setSelfUrl('http://api.example.com/v1/date_time/');
-$serializer->setNextUrl('http://api.example.com/v1/date_time/?page=2&amount=20');
+$serializer->setSelfUrl('/date_time/');
+$serializer->setNextUrl('/date_time/?page=2&amount=20');
 
 echo (new Serializer($serializer))->serialize($post);

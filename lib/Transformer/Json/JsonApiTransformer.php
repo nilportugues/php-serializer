@@ -147,50 +147,194 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
+     * @param array $value
+     * @param array $data
+     */
+    private function setResponseDataTypeAndId(array $value, array &$data)
+    {
+        $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
+        $data[self::TYPE_KEY] = $this->namespaceAsArrayKey($type);
+
+        $idProperties = $this->mappings[$type]->getIdProperties();
+        $ids = [];
+        foreach(array_keys($value) as $propertyName) {
+            if (in_array($propertyName, $idProperties, true)) {
+                $ids[] = $value[$propertyName];
+            }
+        }
+
+        $data[self::ID_KEY] = $ids;
+    }
+
+    /**
+     * @param array $array
+     * @param array $data
+     */
+    private function setResponseDataAttributes(array $array, array &$data)
+    {
+        $attributes = [];
+        foreach($array as $propertyName => $value) {
+
+            if (is_array($value)
+                && array_key_exists(Serializer::SCALAR_TYPE, $value)
+                && array_key_exists(Serializer::SCALAR_VALUE, $value)
+            ) {
+                $attributes[$propertyName] = $value;
+            }
+        }
+
+        $data[self::ATTRIBUTES_KEY] = $attributes;
+    }
+
+    /**
      * @param mixed $value
      *
      * @return string
      */
     public function serialize($value)
     {
-        $included = [];
-        $this->recursiveSetValues($value);
-        $data = $value;
-        $this->recursiveData($data);
-        $this->removeTopLevelDataFields($value, $data);
-        $this->recursiveBuildIncluded($value, $included);
+        $data = [];
+        $this->setResponseVersion($data);
+        $this->setResponseMeta($data);
+        $this->setResponseDataTypeAndId($value, $data);
+        $this->setResponseDataAttributes($value, $data);
 
-        return json_encode(
-            [
-                'data' => $data,
-                'included' => $included
-            ],
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
-        /*
-         * luego el data, luego los relationship,y los included,
-         * juntarlo todo en el mensaje final
-         *
-         *
-         * esto en 4 funciones recursivas secuenciales.
-         */
 
+
+
+
+
+        print_r($data);
         die();
-        $this->recursiveSetApiDataStructure($value, $included, $value);
 
-        //@todo: Implmenent methods
-        foreach ($this->mappings as $mapping) {
-            //$this->recursiveUnsetClassKey($value, $mapping->getHiddenProperties(), $mapping->getClassName());
-            //$this->recursiveRenameKeys($value, $mapping->getAliasedProperties(), $mapping->getClassName());
+        $originalValue = $value;
+        $this->recursiveSetValues($value);
+
+        $data = [];
+
+
+        //Basic structure without attributes
+        $data = [self::ID_KEY => $this->getId($value),  self::TYPE_KEY => $this->getType($value)];
+        $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
+        unset($value[Serializer::CLASS_IDENTIFIER_KEY]);
+
+        //
+        $attributes = [];
+        $included = [];
+        $relationships = [];
+        $links = [];
+
+        foreach($value as $key => $attribute) {
+            if(!is_array($attribute)) {
+                $attributes[$key] = $attribute;
+                unset($value[$key]);
+                continue;
+            }
+
+            //nested attributes. Solving this is key.
+            if(is_array($attribute) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $attribute)) {
+                break;
+                $this->recursiveSetValues($attribute);
+                print_r($attribute);
+                die();
+                $included[] = $attribute;
+                $relationships[] = [
+                    $key => [
+                        'data' => [
+                            'type' => $attribute[self::TYPE_KEY],
+                            'id' => $attribute[self::ID_KEY],
+                        ],
+                      //  'links' => $attribute[self::LINKS_KEY]
+                    ]
+                ];
+            }
         }
 
-        $this->recursiveUnset($value, [Serializer::CLASS_IDENTIFIER_KEY]);
+
+        $idAttributes = [];
+        $replacements = [];
+        foreach($this->mappings[$type]->getIdProperties() as $attribute) {
+            $attributeUnderscore = $this->camelCaseToUnderscore($attribute);
+            $idAttributes[] = $this->getIdValues($value[$attributeUnderscore]);
+            $replacements[] = '{'.$attribute.'}';
+        }
+
+        print_r($idAttributes);
+        print_r($replacements);
+        die();
+        $links[self::SELF_LINK] = str_replace(
+            $replacements,
+            $idAttributes,
+            $this->mappings[$type]->getResourceUrl()
+        );
+
+        print_r($links);
+
+        $data[self::ATTRIBUTES_KEY] = $attributes;
+        $data[self::LINKS_KEY] = $links;
+        $data[self::RELATIONSHIPS_KEY] = $relationships;
+        $data[self::INCLUDED_KEY] = $included;
+
+        $this->setResponseLinks($data);
+
+        print_r($value);
+
+        //$this->removeTopLevelDataFields($value, $data);
+        //$data = $value;
+        //$this->recursiveData($data);
+
+        //$this->recursiveBuildIncluded($value, $included);
 
         return json_encode(
-            $this->buildResponse($value, $included),
+            $data,
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );
     }
+
+    private function getType(array &$array)
+    {
+
+        return $this->namespaceAsArrayKey($array[Serializer::CLASS_IDENTIFIER_KEY]);
+
+
+        return $type;
+    }
+
+    private function getId(array &$array) {
+        $type = $array[Serializer::CLASS_IDENTIFIER_KEY];
+        $keys = $this->mappings[$type]->getIdProperties();
+        $id = [];
+        foreach($array as $key => $value) {
+            if(in_array($key, $keys, true)) {
+                if(is_array($value)) {
+                    $value = $this->getId($value);
+                }
+                $id[] = $value;
+                unset($array[$key]);
+            }
+        }
+        return implode('.', $id);
+    }
+
+    private function getIdValues(array &$array) {
+        $type = $array[Serializer::CLASS_IDENTIFIER_KEY];
+        $keys = $this->mappings[$type]->getIdProperties();
+        $id = [];
+        foreach($array as $key => $value) {
+            if(in_array($key, $keys, true)) {
+                if(is_array($value)) {
+                    $value = $this->getId($value);
+                }
+                $id[] = $value;
+                unset($array[$key]);
+            }
+        }
+        return $id;
+    }
+
+
+
+
 
 
     private function recursiveData(array &$array)
@@ -223,22 +367,28 @@ class JsonApiTransformer extends AbstractTransformer
                     }
 
                     if (is_array($value)) {
+                        if (false === array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
+                            $this->recursiveData($value);
+                            if(!is_array($value)) {
+                                $attributes = array_merge($attributes, $value);
+                            } else {
+                                $attributes = array_merge($attributes, [$key => $value]);
+                            }
 
-                       $this->recursiveData($value);
+                        } else {
+                            $currentId = $value;
+                            $this->recursiveData($currentId);
 
-
-                        $relationships[] = [
-                            $key => [
-                                'data' => [
-                                    'type' => '',
-                                    'id' => '',
-                                ],
-                                'links' => [
-                                    'self' => '',
+                            $relationships[] = [
+                                $key => [
+                                    'data' => [
+                                        'type' => $currentId[self::TYPE_KEY],
+                                        'id' => $currentId[self::ID_KEY],
+                                    ],
+                                    'links' => $currentId[self::LINKS_KEY]
                                 ]
-                            ]
-                        ];
-
+                            ];
+                        }
                     } else {
                         $attributes[$key] = $value;
                     }
@@ -277,15 +427,23 @@ class JsonApiTransformer extends AbstractTransformer
     private function recursiveBuildIncluded(array &$array, array &$included)
     {
         //caso particular: si tiene key @type, añadirlo a include.
-
-        //generico
-        foreach($array as $include)
-        {
-            //mirar si cada propiedad es un array y si es asi, llamada recursiva a este metodo.
-
+        if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
+            $included[] = $array;
+            return;
         }
 
-        print_r($array); die();
+        //generico
+        foreach($array as &$include) {
+            if (is_array($include)) {
+                if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $include)) {
+                    $this->recursiveData($include);
+                    $included[] = $include;
+                } else {
+                  $this->recursiveBuildIncluded($include, $included);
+                }
+            }
+        }
+
     }
 
 
@@ -385,7 +543,6 @@ class JsonApiTransformer extends AbstractTransformer
 
     /**
      * @param $value
-     * @param $id
      *
      * @return string
      */
@@ -578,7 +735,7 @@ class JsonApiTransformer extends AbstractTransformer
     /**
      * @param $response
      */
-    private function setResponseVersion(&$response)
+    private function setResponseVersion(array &$response)
     {
         if (!empty($this->apiVersion)) {
             $response[self::JSONAPI_KEY][self::VERSION_KEY] = $this->apiVersion;
@@ -588,7 +745,7 @@ class JsonApiTransformer extends AbstractTransformer
     /**
      * @param $response
      */
-    private function setResponseMeta(&$response)
+    private function setResponseMeta(array &$response)
     {
         if (!empty($this->meta)) {
             $response[self::META_KEY] = $this->meta;

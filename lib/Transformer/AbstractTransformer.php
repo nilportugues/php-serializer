@@ -49,20 +49,7 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function setSelfUrl($self)
     {
-        $this->validateUrl($self);
         $this->selfUrl = (string) $self;
-    }
-
-    /**
-     * @param $url
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function validateUrl($url)
-    {
-        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('Provided value is not a valid URL');
-        }
     }
 
     /**
@@ -72,7 +59,6 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function setFirstUrl($firstUrl)
     {
-        $this->validateUrl($firstUrl);
         $this->firstUrl = (string) $firstUrl;
     }
 
@@ -83,7 +69,6 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function setLastUrl($lastUrl)
     {
-        $this->validateUrl($lastUrl);
         $this->lastUrl = (string) $lastUrl;
     }
 
@@ -94,7 +79,6 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function setNextUrl($nextUrl)
     {
-        $this->validateUrl($nextUrl);
         $this->nextUrl = (string) $nextUrl;
     }
 
@@ -105,7 +89,6 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function setPrevUrl($prevUrl)
     {
-        $this->validateUrl($prevUrl);
         $this->prevUrl = (string) $prevUrl;
     }
 
