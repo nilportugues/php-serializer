@@ -187,18 +187,44 @@ class JsonApiTransformer extends AbstractTransformer
     }
 
     /**
+     * @param array $array
+     * @param array $data
+     */
+    private function setResponseDataIncluded(array $array, array &$data)
+    {
+        foreach($array as $value) {
+            if (is_array($value)) {
+                if(array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
+                    $data[self::INCLUDED_KEY][] = $value;
+                }
+                else {
+                    if(is_array($value)) {
+                        foreach($value as $inArrayValue) {
+                            if(is_array($inArrayValue)) {
+                                $this->setResponseDataIncluded($inArrayValue, $data);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param mixed $value
      *
      * @return string
      */
     public function serialize($value)
     {
+        die();
+
         $data = [];
         $this->setResponseVersion($data);
         $this->setResponseMeta($data);
         $this->setResponseDataTypeAndId($value, $data);
         $this->setResponseDataAttributes($value, $data);
-
+        $this->setResponseDataIncluded($value, $data);
 
 
 

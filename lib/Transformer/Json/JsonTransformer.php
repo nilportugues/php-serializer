@@ -22,9 +22,12 @@ class JsonTransformer extends AbstractTransformer
      */
     public function serialize($value)
     {
+
         $this->recursiveSetValues($value);
         $this->recursiveUnset($value, [Serializer::CLASS_IDENTIFIER_KEY]);
         $this->recursiveFlattenOneElementObjectsToScalarType($value);
+
+
 
         return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
@@ -34,7 +37,8 @@ class JsonTransformer extends AbstractTransformer
      */
     private function recursiveFlattenOneElementObjectsToScalarType(array &$array)
     {
-        if (1 === count($array)) {
+
+        if (1 === count($array) && is_scalar(end($array))) {
             $array = array_pop($array);
         }
 

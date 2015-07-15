@@ -13,6 +13,7 @@ class Serializer
     const SCALAR_TYPE = '@scalar';
     const SCALAR_VALUE = '@value';
     const NULL_VAR = null;
+    const MAP_TYPE = '@map';
 
     /**
      * Storage for object.
@@ -133,6 +134,7 @@ class Serializer
             return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
         }
 
+
         if (is_object($value) && in_array('Traversable', class_implements(get_class($value)))) {
             $toArray = [];
             foreach ($value as $k => $v) {
@@ -202,6 +204,12 @@ class Serializer
     {
         if ($value === null || !is_array($value)) {
             return $value;
+        }
+
+        if (isset($value[self::MAP_TYPE])) {
+
+            print_r($value);
+            die();
         }
 
         if (isset($value[self::SCALAR_TYPE])) {
@@ -412,7 +420,16 @@ class Serializer
      */
     protected function serializeArray(array $value)
     {
-        return array_map(array($this, 'serializeData'), $value);
+        if(array_key_exists(self::MAP_TYPE, $value)) {
+            return $value;
+        }
+
+        $toArray = array(self::MAP_TYPE => 'array');
+        foreach ($value as $key => $field) {
+            $toArray[self::SCALAR_VALUE][$key] = $this->serializeData($field);
+        }
+
+        return $this->serializeData($toArray);
     }
 
     /**
@@ -433,6 +450,8 @@ class Serializer
         $paramsToSerialize = $this->getObjectProperties($ref, $value);
 
         $data = array(self::CLASS_IDENTIFIER_KEY => $ref->getName());
+
+
         $data += array_map(array($this, 'serializeData'), $this->extractObjectData($value, $ref, $paramsToSerialize));
 
         return $data;

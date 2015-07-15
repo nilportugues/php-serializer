@@ -147,11 +147,14 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     protected function recursiveSetValues(array &$array)
     {
-        if (array_key_exists('@value', $array)) {
-            $array = $array['@value'];
+
+
+        if (array_key_exists(Serializer::SCALAR_VALUE, $array)) {
+            $array = $array[Serializer::SCALAR_VALUE];
         }
 
-        if (is_array($array)) {
+
+        if (is_array($array) && !array_key_exists(Serializer::SCALAR_VALUE, $array)) {
             foreach ($array as &$value) {
                 if (is_array($value)) {
                     $this->recursiveSetValues($value);
