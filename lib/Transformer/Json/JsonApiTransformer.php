@@ -259,7 +259,7 @@ class JsonApiTransformer extends AbstractTransformer
 
 
         foreach($array as $propertyName => $value) {
-            if(array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
+            if(is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
 
                 $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
                 $idProperties = $this->mappings[$type]->getIdProperties();
