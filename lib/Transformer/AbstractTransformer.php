@@ -147,11 +147,9 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     protected function recursiveSetValues(array &$array)
     {
-
         if (array_key_exists(Serializer::SCALAR_VALUE, $array)) {
             $array = $array[Serializer::SCALAR_VALUE];
         }
-
 
         if (is_array($array) && !array_key_exists(Serializer::SCALAR_VALUE, $array)) {
             foreach ($array as &$value) {
@@ -162,13 +160,11 @@ abstract class AbstractTransformer implements StrategyInterface
         }
     }
 
-
     /**
      * @param array $array
      */
     protected function recursiveFlattenOneElementObjectsToScalarType(array &$array)
     {
-
         if (1 === count($array) && is_scalar(end($array))) {
             $array = array_pop($array);
         }

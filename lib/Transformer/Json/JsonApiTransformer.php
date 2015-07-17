@@ -12,18 +12,18 @@ use NilPortugues\Serializer\Serializer;
  */
 class JsonApiTransformer extends AbstractTransformer
 {
-    const SELF_LINK         = 'self';
-    const TITLE             = 'title';
+    const SELF_LINK = 'self';
+    const TITLE = 'title';
     const RELATIONSHIPS_KEY = 'relationships';
-    const LINKS_KEY         = 'links';
-    const TYPE_KEY          = 'type';
-    const DATA_KEY          = 'data';
-    const JSONAPI_KEY       = 'jsonapi';
-    const META_KEY          = 'meta';
-    const INCLUDED_KEY      = 'included';
-    const VERSION_KEY       = 'version';
-    const ATTRIBUTES_KEY    = 'attributes';
-    const ID_KEY            = 'id';
+    const LINKS_KEY = 'links';
+    const TYPE_KEY = 'type';
+    const DATA_KEY = 'data';
+    const JSONAPI_KEY = 'jsonapi';
+    const META_KEY = 'meta';
+    const INCLUDED_KEY = 'included';
+    const VERSION_KEY = 'version';
+    const ATTRIBUTES_KEY = 'attributes';
+    const ID_KEY = 'id';
 
     /**
      * @var array
@@ -157,12 +157,11 @@ class JsonApiTransformer extends AbstractTransformer
 
         $idProperties = $this->mappings[$type]->getIdProperties();
         $ids = [];
-        foreach(array_keys($value) as $propertyName) {
+        foreach (array_keys($value) as $propertyName) {
             if (in_array($propertyName, $idProperties, true)) {
                 $ids[] = $value[$propertyName];
             }
         }
-
 
         $data[self::ID_KEY] = $ids;
     }
@@ -174,8 +173,7 @@ class JsonApiTransformer extends AbstractTransformer
     private function setResponseDataAttributes(array $array, array &$data)
     {
         $attributes = [];
-        foreach($array as $propertyName => $value) {
-
+        foreach ($array as $propertyName => $value) {
             if (is_array($value)
                 && array_key_exists(Serializer::SCALAR_TYPE, $value)
                 && array_key_exists(Serializer::SCALAR_VALUE, $value)
@@ -193,32 +191,54 @@ class JsonApiTransformer extends AbstractTransformer
      */
     private function setResponseDataIncluded(array $array, array &$data)
     {
-        foreach($array as $value) {
+        foreach ($array as $value) {
             if (is_array($value)) {
-                if(array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
-
-
+                if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
                     $attributes = [];
-                    foreach($value as $propertyName => $attribute) {
-                        if(Serializer::CLASS_IDENTIFIER_KEY !== $propertyName) {
-                            $attributes[$propertyName] = $attribute;
-                        }
+                    $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
+                    $idProperties = $this->mappings[$type]->getIdProperties();
+                    $relationships = [];
 
+                    foreach ($value as $propertyName => $attribute) {
+                        if (Serializer::CLASS_IDENTIFIER_KEY !== $propertyName && !in_array($propertyName, $idProperties)) {
+                            if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $attribute)) {
+                                $relationshipData = [];
+                                $this->setResponseDataTypeAndId($attribute, $relationshipData);
+                                $this->setResponseDataIncluded($value, $data);
+                                $relationships[$propertyName] = array_merge(
+                                    [
+                                        self::LINKS_KEY => [
+                                            self::SELF_LINK => '',
+                                        ],
+                                    ],
+                                    ['data' => $relationshipData]
+                                );
+                            } else {
+                                $attributes[$propertyName] = $attribute;
+                            }
+                        }
                     }
 
-                    $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
+                    $ids = [];
+                    foreach (array_keys($value) as $propertyName) {
+                        if (in_array($propertyName, $idProperties, true)) {
+                            $ids[] = $value[$propertyName];
+                        }
+                    }
 
-                    $data[self::INCLUDED_KEY][] = [
-                        self::TYPE_KEY => $this->namespaceAsArrayKey($type),
-                        self::ATTRIBUTES_KEY => $attributes,
-                        self::LINKS_KEY => [],
-                        self::RELATIONSHIPS_KEY => [],
-                    ];
-                }
-                else {
-                    if(is_array($value)) {
-                        foreach($value as $inArrayValue) {
-                            if(is_array($inArrayValue)) {
+                    if ([] !== $attributes) {
+                        $data[self::INCLUDED_KEY][] = [
+                            self::TYPE_KEY => $this->namespaceAsArrayKey($type),
+                            self::ID_KEY => $ids,
+                            self::ATTRIBUTES_KEY => $attributes,
+                            self::LINKS_KEY => [],
+                            self::RELATIONSHIPS_KEY => $relationships,
+                        ];
+                    }
+                } else {
+                    if (is_array($value)) {
+                        foreach ($value as $inArrayValue) {
+                            if (is_array($inArrayValue)) {
                                 $this->setResponseDataIncluded($inArrayValue, $data);
                             }
                         }
@@ -231,11 +251,11 @@ class JsonApiTransformer extends AbstractTransformer
     private function buildSelfLinks($type)
     {
         $resourceUrl = $this->mappings[$type]->getResourceUrl();
-        if(!empty($resourceUrl)) {
+        if (!empty($resourceUrl)) {
             $replacements = [];
             $values = [];
 
-            foreach($this->mappings[$type]->getIdProperties() as $propertyName) {
+            foreach ($this->mappings[$type]->getIdProperties() as $propertyName) {
                 $replacements[] = sprintf('{%s}', $propertyName);
                 $this->recursiveSetValues($value);
 
@@ -245,9 +265,9 @@ class JsonApiTransformer extends AbstractTransformer
 
             $resourceUrl = str_replace($replacements, $values, $resourceUrl);
         }
+
         return $resourceUrl;
     }
-
 
     /**
      * @param array $array
@@ -257,24 +277,24 @@ class JsonApiTransformer extends AbstractTransformer
     {
         $data[self::RELATIONSHIPS_KEY] = [];
 
-
-        foreach($array as $propertyName => $value) {
-            if(is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
-
+        foreach ($array as $propertyName => $value) {
+            if (is_array($value) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
                 $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
                 $idProperties = $this->mappings[$type]->getIdProperties();
 
-                if(!in_array($propertyName, $idProperties, true)) {
-                    $data[self::RELATIONSHIPS_KEY][$propertyName] = [
-                        'links' => [
-                            'self' => '',
-                            'related' => '',
+                if (!in_array($propertyName, $idProperties, true)) {
+                    $relationshipData = [];
+                    $this->setResponseDataTypeAndId($value, $relationshipData);
+
+                    $data[self::RELATIONSHIPS_KEY][$propertyName] = array_merge(
+                        [
+                            'links' => [
+                                'self' => '',
+                                'related' => '',
+                            ],
                         ],
-                        'data' => [
-                            'type' => $this->namespaceAsArrayKey($type),
-                            'id' => '',
-                        ]
-                    ];
+                        ['data' => $relationshipData]
+                    );
                 }
             }
         }
@@ -287,34 +307,41 @@ class JsonApiTransformer extends AbstractTransformer
      */
     public function serialize($value)
     {
-
-
         $data = [];
         $this->setResponseVersion($data);
         $this->setResponseMeta($data);
         $this->setResponseDataTypeAndId($value, $data);
         $this->setResponseDataAttributes($value, $data);
         $this->setResponseDataRelationship($value, $data);
-        $this->setResponseDataIncluded($value, $data);
 
+        $copy = $value;
+        $type = $copy[Serializer::CLASS_IDENTIFIER_KEY];
+        foreach ($this->mappings[$type]->getIdProperties() as $propertyName) {
+            unset($copy[$propertyName]);
+        }
+        unset($copy[Serializer::CLASS_IDENTIFIER_KEY]);
 
+        $this->setResponseDataIncluded($copy, $data);
 
-
-        //$this->recursiveSetValues($data);
-        //$this->recursiveUnset($data, [Serializer::CLASS_IDENTIFIER_KEY]);
-        //$this->recursiveFlattenOneElementObjectsToScalarType($data[self::INCLUDED_KEY]);
+        $this->recursiveSetValues($data);
+        $this->recursiveUnset($data, [Serializer::CLASS_IDENTIFIER_KEY]);
+        $this->recursiveFlattenOneElementObjectsToScalarType($data[self::INCLUDED_KEY]);
 
         //$this->setResponseDataIncludeLinks();
         //$this->setResponseDataLinks();
 
+
         print_r($data);
         die();
 
+        return json_encode(
+            $data,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+
         $originalValue = $value;
 
-
         $data = [];
-
 
         //Basic structure without attributes
         $data = [self::ID_KEY => $this->getId($value),  self::TYPE_KEY => $this->getType($value)];
@@ -327,15 +354,15 @@ class JsonApiTransformer extends AbstractTransformer
         $relationships = [];
         $links = [];
 
-        foreach($value as $key => $attribute) {
-            if(!is_array($attribute)) {
+        foreach ($value as $key => $attribute) {
+            if (!is_array($attribute)) {
                 $attributes[$key] = $attribute;
                 unset($value[$key]);
                 continue;
             }
 
             //nested attributes. Solving this is key.
-            if(is_array($attribute) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $attribute)) {
+            if (is_array($attribute) && array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $attribute)) {
                 break;
                 $this->recursiveSetValues($attribute);
                 print_r($attribute);
@@ -348,15 +375,14 @@ class JsonApiTransformer extends AbstractTransformer
                             'id' => $attribute[self::ID_KEY],
                         ],
                       //  'links' => $attribute[self::LINKS_KEY]
-                    ]
+                    ],
                 ];
             }
         }
 
-
         $idAttributes = [];
         $replacements = [];
-        foreach($this->mappings[$type]->getIdProperties() as $attribute) {
+        foreach ($this->mappings[$type]->getIdProperties() as $attribute) {
             $attributeUnderscore = $this->camelCaseToUnderscore($attribute);
             $idAttributes[] = $this->getIdValues($value[$attributeUnderscore]);
             $replacements[] = '{'.$attribute.'}';
@@ -396,61 +422,57 @@ class JsonApiTransformer extends AbstractTransformer
 
     private function getType(array &$array)
     {
-
         return $this->namespaceAsArrayKey($array[Serializer::CLASS_IDENTIFIER_KEY]);
-
 
         return $type;
     }
 
-    private function getId(array &$array) {
+    private function getId(array &$array)
+    {
         $type = $array[Serializer::CLASS_IDENTIFIER_KEY];
         $keys = $this->mappings[$type]->getIdProperties();
         $id = [];
-        foreach($array as $key => $value) {
-            if(in_array($key, $keys, true)) {
-                if(is_array($value)) {
+        foreach ($array as $key => $value) {
+            if (in_array($key, $keys, true)) {
+                if (is_array($value)) {
                     $value = $this->getId($value);
                 }
                 $id[] = $value;
                 unset($array[$key]);
             }
         }
+
         return implode('.', $id);
     }
 
-    private function getIdValues(array &$array) {
+    private function getIdValues(array &$array)
+    {
         $type = $array[Serializer::CLASS_IDENTIFIER_KEY];
         $keys = $this->mappings[$type]->getIdProperties();
         $id = [];
-        foreach($array as $key => $value) {
-            if(in_array($key, $keys, true)) {
-                if(is_array($value)) {
+        foreach ($array as $key => $value) {
+            if (in_array($key, $keys, true)) {
+                if (is_array($value)) {
                     $value = $this->getId($value);
                 }
                 $id[] = $value;
                 unset($array[$key]);
             }
         }
+
         return $id;
     }
-
-
-
-
-
 
     private function recursiveData(array &$array)
     {
         if (is_array($array)) {
-
-            if(array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
-                $id            = [];
-                $type          = null;
-                $attributes    = [];
-                $meta          = [];
+            if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
+                $id = [];
+                $type = null;
+                $attributes = [];
+                $meta = [];
                 $relationships = [];
-                $links         = [];
+                $links = [];
 
                 foreach ($array as $key => &$value) {
                     if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
@@ -459,8 +481,8 @@ class JsonApiTransformer extends AbstractTransformer
                     }
 
                     if ($this->isIdentifierKey($array, $key)) {
-                        $id          = $this->setIdentifierKey($value, $id);
-                        $meta        = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
+                        $id = $this->setIdentifierKey($value, $id);
+                        $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
                         $resourceUrl = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl();
 
                         $this->setSelfFromRecursion($array, $resourceUrl, $links);
@@ -472,12 +494,11 @@ class JsonApiTransformer extends AbstractTransformer
                     if (is_array($value)) {
                         if (false === array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
                             $this->recursiveData($value);
-                            if(!is_array($value)) {
+                            if (!is_array($value)) {
                                 $attributes = array_merge($attributes, $value);
                             } else {
                                 $attributes = array_merge($attributes, [$key => $value]);
                             }
-
                         } else {
                             $currentId = $value;
                             $this->recursiveData($currentId);
@@ -488,8 +509,8 @@ class JsonApiTransformer extends AbstractTransformer
                                         'type' => $currentId[self::TYPE_KEY],
                                         'id' => $currentId[self::ID_KEY],
                                     ],
-                                    'links' => $currentId[self::LINKS_KEY]
-                                ]
+                                    'links' => $currentId[self::LINKS_KEY],
+                                ],
                             ];
                         }
                     } else {
@@ -507,21 +528,20 @@ class JsonApiTransformer extends AbstractTransformer
      */
     private function removeTopLevelDataFields(array &$array, array $data)
     {
-        if(array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
+        if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
             $type = $array[Serializer::CLASS_IDENTIFIER_KEY];
 
-            foreach($this->mappings[$type]->getIdProperties() as $property) {
+            foreach ($this->mappings[$type]->getIdProperties() as $property) {
                 unset($array[$property]);
             }
 
-            foreach(array_keys($data[self::ATTRIBUTES_KEY]) as $key) {
+            foreach (array_keys($data[self::ATTRIBUTES_KEY]) as $key) {
                 unset($array[$key]);
             }
 
             unset($array[Serializer::CLASS_IDENTIFIER_KEY]);
         }
     }
-
 
     /**
      * @param array $array
@@ -532,23 +552,22 @@ class JsonApiTransformer extends AbstractTransformer
         //caso particular: si tiene key @type, añadirlo a include.
         if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $array)) {
             $included[] = $array;
+
             return;
         }
 
         //generico
-        foreach($array as &$include) {
+        foreach ($array as &$include) {
             if (is_array($include)) {
                 if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $include)) {
                     $this->recursiveData($include);
                     $included[] = $include;
                 } else {
-                  $this->recursiveBuildIncluded($include, $included);
+                    $this->recursiveBuildIncluded($include, $included);
                 }
             }
         }
-
     }
-
 
     /**
      * @param array $array
@@ -557,12 +576,12 @@ class JsonApiTransformer extends AbstractTransformer
     private function recursiveSetApiDataStructure(array &$array, array &$included)
     {
         if (is_array($array)) {
-            $id            = [];
-            $type          = null;
-            $attributes    = [];
-            $meta          = [];
+            $id = [];
+            $type = null;
+            $attributes = [];
+            $meta = [];
             $relationships = [];
-            $links         = [];
+            $links = [];
 
             foreach ($array as $key => &$value) {
                 if ($key === Serializer::CLASS_IDENTIFIER_KEY) {
@@ -571,8 +590,8 @@ class JsonApiTransformer extends AbstractTransformer
                 }
 
                 if ($this->isIdentifierKey($array, $key)) {
-                    $id          = $this->setIdentifierKey($value);
-                    $meta        = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
+                    $id = $this->setIdentifierKey($value);
+                    $meta = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getMetaData();
                     $resourceUrl = $this->mappings[$array[Serializer::CLASS_IDENTIFIER_KEY]]->getResourceUrl();
 
                     $this->setSelfFromRecursion($array, $resourceUrl, $links);
@@ -582,14 +601,10 @@ class JsonApiTransformer extends AbstractTransformer
                 }
 
                 if (is_array($value)) {
-
                     $this->recursiveSetApiDataStructure($value, $included);
 
-
                     if ($this->isIncludeable($value)) {
-
-
-                        if(array_key_exists($value['type'].'.'.$value['id'], $included)) {
+                        if (array_key_exists($value['type'].'.'.$value['id'], $included)) {
                             $included[$value['type'].'.'.$value['id']] = array_merge_recursive(
                                 $included[$value['type'].'.'.$value['id']],
                                 $value
@@ -598,10 +613,8 @@ class JsonApiTransformer extends AbstractTransformer
                             $included[$value['type'].'.'.$value['id']] = $value;
                         }
 
-
                         $this->setRelationshipFromRecursion($key, $value, $relationships);
-                    }
-                    elseif (isset($value[self::RELATIONSHIPS_KEY])) {
+                    } elseif (isset($value[self::RELATIONSHIPS_KEY])) {
                         foreach ($value[self::RELATIONSHIPS_KEY] as $relation) {
                             $this->setRelationshipFromRecursion(
                                 $relation[self::DATA_KEY][self::TYPE_KEY],
@@ -610,15 +623,13 @@ class JsonApiTransformer extends AbstractTransformer
                             );
                         }
                     } else {
-
-                        if(!empty($parentType) && !empty($parentId)) {
+                        if (!empty($parentType) && !empty($parentId)) {
                             $this->recursiveSetValues($parentArray);
                             $this->recursiveUnset($parentArray, [Serializer::CLASS_IDENTIFIER_KEY]);
 
                             $included[$parentType.'.'.$parentId][self::ATTRIBUTES_KEY][$key] = $value[self::ATTRIBUTES_KEY];
                         }
                     }
-
                 } else {
                     $attributes[$key] = $value;
                 }
@@ -666,8 +677,8 @@ class JsonApiTransformer extends AbstractTransformer
     private function setSelfFromRecursion(array &$array, $resourceUrl, array &$links)
     {
         if (!empty($resourceUrl)) {
-            $replacementKeys        = $this->getUrlReplacementKeys($array);
-            $replacementValues      = $this->getUrlReplacementValues($array);
+            $replacementKeys = $this->getUrlReplacementKeys($array);
+            $replacementValues = $this->getUrlReplacementValues($array);
             $links[self::SELF_LINK] = str_replace($replacementKeys, $replacementValues, $resourceUrl);
         }
     }
@@ -730,7 +741,7 @@ class JsonApiTransformer extends AbstractTransformer
     private function setUrlTitle($titleString, array &$array)
     {
         foreach ($array as $key => $value) {
-            $titleString = str_replace('{' . $key . '}', $value, $titleString);
+            $titleString = str_replace('{'.$key.'}', $value, $titleString);
         }
 
         return $titleString;
@@ -756,10 +767,10 @@ class JsonApiTransformer extends AbstractTransformer
      */
     private function setRelationshipFromRecursion($key, $value, array &$relationships)
     {
-        $arrayKey                                  = $this->camelCaseToUnderscore($key);
+        $arrayKey = $this->camelCaseToUnderscore($key);
         $relationships[$arrayKey][self::LINKS_KEY] = [
             self::SELF_LINK => 'aa',
-            'related'       => 'aa',
+            'related' => 'aa',
         ];
 
         if (array_key_exists($value[self::TYPE_KEY], $this->mappings)) {
@@ -884,11 +895,11 @@ class JsonApiTransformer extends AbstractTransformer
         ) {
             $response[self::LINKS_KEY] = [
                 self::SELF_LINK => $this->selfUrl,
-                'first'         => $this->firstUrl,
-                'last'          => $this->lastUrl,
-                'prev'          => $this->prevUrl,
-                'next'          => $this->nextUrl,
-                'related'       => $this->relatedUrl,
+                'first' => $this->firstUrl,
+                'last' => $this->lastUrl,
+                'prev' => $this->prevUrl,
+                'next' => $this->nextUrl,
+                'related' => $this->relatedUrl,
             ];
             $response[self::LINKS_KEY] = array_filter($response[self::LINKS_KEY]);
         }
@@ -902,5 +913,4 @@ class JsonApiTransformer extends AbstractTransformer
     {
         $this->meta[$key] = $value;
     }
-
 }
