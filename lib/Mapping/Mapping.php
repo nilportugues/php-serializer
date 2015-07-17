@@ -48,22 +48,6 @@ class Mapping
     }
 
     /**
-     * @param $titleStringFormat
-     */
-    public function setResourceUrlTitle($titleStringFormat)
-    {
-        $this->resourceUrlTitlePattern = (string) $titleStringFormat;
-    }
-
-    /**
-     * @return string
-     */
-    public function getResourceUrlTitlePattern()
-    {
-        return $this->resourceUrlTitlePattern;
-    }
-
-    /**
      * @return array
      */
     public function getIdProperties()

@@ -134,7 +134,6 @@ class Serializer
             return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
         }
 
-
         if (is_object($value) && in_array('Traversable', class_implements(get_class($value)))) {
             $toArray = [];
             foreach ($value as $k => $v) {
@@ -207,7 +206,6 @@ class Serializer
         }
 
         if (isset($value[self::MAP_TYPE])) {
-
             print_r($value);
             die();
         }
@@ -420,7 +418,7 @@ class Serializer
      */
     protected function serializeArray(array $value)
     {
-        if(array_key_exists(self::MAP_TYPE, $value)) {
+        if (array_key_exists(self::MAP_TYPE, $value)) {
             return $value;
         }
 
@@ -450,7 +448,6 @@ class Serializer
         $paramsToSerialize = $this->getObjectProperties($ref, $value);
 
         $data = array(self::CLASS_IDENTIFIER_KEY => $ref->getName());
-
 
         $data += array_map(array($this, 'serializeData'), $this->extractObjectData($value, $ref, $paramsToSerialize));
 

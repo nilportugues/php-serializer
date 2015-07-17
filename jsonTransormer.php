@@ -230,21 +230,21 @@ $post = new Post(
     new PostId(9),
     "Hello World",
     "Your first post",
-    new User(new UserId(1), 'John Doe'),
+    new User(new UserId(1), 'Post Author'),
     [
         $comment1
     ]
 );
 
 
-$postMapping = new Mapping('Post', '/posts/{postId}', ['postId']);
-$postIdMapping = new Mapping('PostId', '/posts/{postId}', ['postId']);
+$postMapping = new Mapping('Post', 'http://example.com/posts/{postId}', ['postId']);
+$postIdMapping = new Mapping('PostId', 'http://example.com/posts/{postId}', ['postId']);
 
-$userMapping = new Mapping('User', '/users/{userId}', ['userId']);
-$userIdMapping = new Mapping('UserId',  '/users/{userId}', ['userId']);
+$userMapping = new Mapping('User', 'http://example.com/users/{userId}', ['userId']);
+$userIdMapping = new Mapping('UserId',  'http://example.com/users/{userId}', ['userId']);
 
-$commentMapping = new Mapping('Comment', '/comments/{commentId}', ['commentId']);
-$commentIdMapping = new Mapping('CommentId', '/comments/{commentId}', ['commentId']);
+$commentMapping = new Mapping('Comment', 'http://example.com/comments/{commentId}', ['commentId']);
+$commentIdMapping = new Mapping('CommentId', 'http://example.com/comments/{commentId}', ['commentId']);
 
 
 /*
@@ -253,13 +253,12 @@ for ($i = 1; $i <= 5; $i++) {
     $array[] = new DateTime("now +$i days");
 }
 
-
+*/
 $dateTimeMapping = new Mapping('DateTime', '/date-time/{timezone_type}', ['timezone_type']);
 $dateTimeMapping->setHiddenProperties(['timezone_type']);
 $dateTimeMapping->setPropertyNameAliases(['date' => 'fecha']);
-*/
+
 $apiMappingCollection = [
-    //$dateTimeMapping->getClassName() => $dateTimeMapping
     $postMapping->getClassName() => $postMapping,
     $postIdMapping->getClassName() => $postIdMapping,
     $userMapping->getClassName() => $userMapping,
@@ -286,9 +285,9 @@ echo '-------------------------------------------------------------';
 echo PHP_EOL;
 echo PHP_EOL;
 $serializer = new JsonApiTransformer($apiMappingCollection);
-$serializer->setApiVersion('1.0.1');
-$serializer->setSelfUrl('/posts/1');
-$serializer->setNextUrl('/posts/2');
+$serializer->setApiVersion('1.0');
+$serializer->setSelfUrl('http://example.com/posts/1');
+$serializer->setNextUrl('http://example.com/posts/2');
 $serializer->addMeta('author', [['name' => 'Nil Portugués Calderó', 'email' => 'contact@nilportugues.com']]);
 
 echo (new Serializer($serializer))->serialize($post);
