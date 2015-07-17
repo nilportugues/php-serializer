@@ -1,9 +1,9 @@
 <?php
 
-namespace NilPortugues\Api\Transformer\Json;
+namespace NilPortugues\Serializer\Transformer\Json;
 
-use NilPortugues\Api\Transformer\AbstractTransformer;
 use NilPortugues\Serializer\Serializer;
+use NilPortugues\Serializer\Transformer\AbstractTransformer;
 
 /**
  * Class JsonTransformer.

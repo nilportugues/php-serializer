@@ -33,8 +33,7 @@
     },
     "autoload": {
         "psr-4": {
-            "NilPortugues\\Serializer\\": "src/",
-            "NilPortugues\\Api\\": "lib/"
+            "NilPortugues\\Serializer\\": "src/"
         }
     },
     "autoload-dev": {
