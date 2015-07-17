@@ -205,9 +205,10 @@ class Serializer
             return $value;
         }
 
-        if (isset($value[self::MAP_TYPE])) {
-            print_r($value);
-            die();
+        if (isset($value[self::MAP_TYPE]) && !isset($value[self::CLASS_IDENTIFIER_KEY])) {
+            $value = $value[self::SCALAR_VALUE];
+
+            return $this->unserializeData($value);
         }
 
         if (isset($value[self::SCALAR_TYPE])) {
@@ -259,6 +260,11 @@ class Serializer
     {
         $className = $value[self::CLASS_IDENTIFIER_KEY];
         unset($value[self::CLASS_IDENTIFIER_KEY]);
+
+        if (isset($value[self::MAP_TYPE])) {
+            unset($value[self::MAP_TYPE]);
+            unset($value[self::SCALAR_VALUE]);
+        }
 
         if ($className[0] === '@') {
             return $this->objectMapping[substr($className, 1)];

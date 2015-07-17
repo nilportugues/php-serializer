@@ -12,19 +12,19 @@ use NilPortugues\Serializer\Serializer;
  */
 class JsonApiTransformer extends AbstractTransformer
 {
-    const SELF_LINK         = 'self';
-    const TITLE             = 'title';
+    const SELF_LINK = 'self';
+    const TITLE = 'title';
     const RELATIONSHIPS_KEY = 'relationships';
-    const LINKS_KEY         = 'links';
-    const TYPE_KEY          = 'type';
-    const DATA_KEY          = 'data';
-    const JSON_API_KEY      = 'jsonapi';
-    const META_KEY          = 'meta';
-    const INCLUDED_KEY      = 'included';
-    const VERSION_KEY       = 'version';
-    const ATTRIBUTES_KEY    = 'attributes';
-    const ID_KEY            = 'id';
-    const ID_SEPARATOR      = '.';
+    const LINKS_KEY = 'links';
+    const TYPE_KEY = 'type';
+    const DATA_KEY = 'data';
+    const JSON_API_KEY = 'jsonapi';
+    const META_KEY = 'meta';
+    const INCLUDED_KEY = 'included';
+    const VERSION_KEY = 'version';
+    const ATTRIBUTES_KEY = 'attributes';
+    const ID_KEY = 'id';
+    const ID_SEPARATOR = '.';
 
     /**
      * @var array
@@ -183,14 +183,14 @@ class JsonApiTransformer extends AbstractTransformer
      */
     private function setResponseDataTypeAndId(array &$value)
     {
-        $data                 = [];
-        $type                 = $value[Serializer::CLASS_IDENTIFIER_KEY];
+        $data = [];
+        $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
         $data[self::TYPE_KEY] = $this->namespaceAsArrayKey($type);
 
         $ids = [];
         foreach (array_keys($value) as $propertyName) {
             if (in_array($propertyName, $this->getIdProperties($type), true)) {
-                $id    = $this->getIdValue($value[$propertyName]);
+                $id = $this->getIdValue($value[$propertyName]);
                 $ids[] = (is_array($value[$propertyName])) ? implode(self::ID_SEPARATOR, $id) : $id;
             }
         }
@@ -237,7 +237,7 @@ class JsonApiTransformer extends AbstractTransformer
      */
     private function setResponseDataAttributes(array &$array)
     {
-        $data       = [];
+        $data = [];
         $attributes = [];
         foreach ($array as $propertyName => $value) {
             if (is_array($value)
@@ -264,10 +264,10 @@ class JsonApiTransformer extends AbstractTransformer
         $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
 
         if (!empty($this->mappings[$type])) {
-            $idValues     = [];
+            $idValues = [];
             $idProperties = $this->getIdProperties($type);
             foreach ($idProperties as &$propertyName) {
-                $idValues[]   = $this->getIdValue($value[$propertyName]);
+                $idValues[] = $this->getIdValue($value[$propertyName]);
                 $propertyName = sprintf('{%s}', $propertyName);
             }
             $this->recursiveFlattenOneElementObjectsToScalarType($idValues);
@@ -331,7 +331,7 @@ class JsonApiTransformer extends AbstractTransformer
         foreach ($array as $value) {
             if (is_array($value)) {
                 if (array_key_exists(Serializer::CLASS_IDENTIFIER_KEY, $value)) {
-                    $attributes    = [];
+                    $attributes = [];
                     $relationships = [];
 
                     $type = $value[Serializer::CLASS_IDENTIFIER_KEY];
@@ -342,7 +342,6 @@ class JsonApiTransformer extends AbstractTransformer
                                 $this->setResponseDataIncluded($value, $data);
 
                                 $selfLink = $this->setResponseDataLinks($attribute);
-
 
                                 $relationships[$propertyName] = array_merge(
                                     $selfLink,
@@ -355,10 +354,7 @@ class JsonApiTransformer extends AbstractTransformer
                         }
                     }
 
-
                     if (count($attributes) > 0) {
-
-
                         $includedData = $this->setResponseDataTypeAndId($value);
 
                         if (array_key_exists(self::ID_KEY, $includedData) && !empty($includedData[self::ID_KEY])) {
@@ -366,8 +362,8 @@ class JsonApiTransformer extends AbstractTransformer
 
                             $data[self::INCLUDED_KEY][] = array_merge(
                                 [
-                                    self::TYPE_KEY       => $includedData[self::TYPE_KEY],
-                                    self::ID_KEY         => $includedData[self::ID_KEY],
+                                    self::TYPE_KEY => $includedData[self::TYPE_KEY],
+                                    self::ID_KEY => $includedData[self::ID_KEY],
                                     self::ATTRIBUTES_KEY => $attributes,
                                 ],
                                 $selfLink,
@@ -386,7 +382,6 @@ class JsonApiTransformer extends AbstractTransformer
                         }
                     }
                 }
-
             }
         }
     }
@@ -417,11 +412,11 @@ class JsonApiTransformer extends AbstractTransformer
         ) {
             $data[self::LINKS_KEY] = [
                 self::SELF_LINK => $this->selfUrl,
-                'first'         => $this->firstUrl,
-                'last'          => $this->lastUrl,
-                'prev'          => $this->prevUrl,
-                'next'          => $this->nextUrl,
-                'related'       => $this->relatedUrl,
+                'first' => $this->firstUrl,
+                'last' => $this->lastUrl,
+                'prev' => $this->prevUrl,
+                'next' => $this->nextUrl,
+                'related' => $this->relatedUrl,
             ];
             $data[self::LINKS_KEY] = array_filter($data[self::LINKS_KEY]);
         }

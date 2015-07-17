@@ -132,14 +132,14 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
     public function arrayNoObjectData()
     {
         return array(
-            array(array(1, 2, 3), '[{"@scalar":"integer","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"integer","@value":3}]'),
-            array(array(1, 'abc', false), '[{"@scalar":"integer","@value":1},{"@scalar":"string","@value":"abc"},{"@scalar":"boolean","@value":false}]'),
-            array(array('a' => 1, 'b' => 2, 'c' => 3), '{"a":{"@scalar":"integer","@value":1},"b":{"@scalar":"integer","@value":2},"c":{"@scalar":"integer","@value":3}}'),
-            array(array('integer' => 1, 'string' => 'abc', 'bool' => false), '{"integer":{"@scalar":"integer","@value":1},"string":{"@scalar":"string","@value":"abc"},"bool":{"@scalar":"boolean","@value":false}}'),
-            array(array(1, array('nested')), '[{"@scalar":"integer","@value":1},[{"@scalar":"string","@value":"nested"}]]'),
-            array(array('integer' => 1, 'array' => array('nested')), '{"integer":{"@scalar":"integer","@value":1},"array":[{"@scalar":"string","@value":"nested"}]}'),
-            array(array('integer' => 1, 'array' => array('nested' => 'object')), '{"integer":{"@scalar":"integer","@value":1},"array":{"nested":{"@scalar":"string","@value":"object"}}}'),
-            array(array(1.0, 2, 3e1), '[{"@scalar":"float","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"float","@value":30}]'),
+            array(array(1, 2, 3), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"integer","@value":3}]}'),
+            array(array(1, 'abc', false), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"string","@value":"abc"},{"@scalar":"boolean","@value":false}]}'),
+            array(array('a' => 1, 'b' => 2, 'c' => 3), '{"@map":"array","@value":{"a":{"@scalar":"integer","@value":1},"b":{"@scalar":"integer","@value":2},"c":{"@scalar":"integer","@value":3}}}'),
+            array(array('integer' => 1, 'string' => 'abc', 'bool' => false), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"string":{"@scalar":"string","@value":"abc"},"bool":{"@scalar":"boolean","@value":false}}}'),
+            array(array(1, array('nested')), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}]}'),
+            array(array('integer' => 1, 'array' => array('nested')), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}}}'),
+            array(array('integer' => 1, 'array' => array('nested' => 'object')), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":{"nested":{"@scalar":"string","@value":"object"}}}}}'),
+            array(array(1.0, 2, 3e1), '{"@map":"array","@value":[{"@scalar":"float","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"float","@value":30}]}'),
         );
     }
 
@@ -167,7 +167,7 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $this->serializer->serialize($obj));
 
         $array = array('instance' => $empty);
-        $expected = '{"instance":{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\EmptyClass"}}';
+        $expected = '{"@map":"array","@value":{"instance":{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\EmptyClass"}}}';
         $this->assertSame($expected, $this->serializer->serialize($array));
 
         $obj = new stdClass();
@@ -219,32 +219,22 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * TraversableSerializer serialization.
-     */
-    public function testSerializationOfTraversableClasses()
-    {
-        $traversable = new TraversableClass();
-        $traversable->next();
-
-        $serialized = $this->serializer->serialize($traversable);
-        $unserializedCollection = $this->serializer->unserialize($serialized);
-
-        $this->assertEquals($traversable, $unserializedCollection);
-    }
-
-    /**
+     
+     public function testSerializationOfTraversableClasses()
+     {
+     $traversable = new TraversableClass();
+     $traversable->next();
+     
+     $serialized = $this->serializer->serialize($traversable);
+     $unserializedCollection = $this->serializer->unserialize($serialized);
+     
+     
+     $this->assertEquals($traversable, $unserializedCollection);
+     }
+     
+     /**
      * TraversableSerializer serialization.
-     */
-    public function testSerializationOfSplFixedArray()
-    {
-        $traversable = new \SplFixedArray(5);
-        for ($i = 1;$i <= 5;++$i) {
-            $traversable[$i - 1] = new \DateTime('now + '.$i.' days');
-        }
-
-        $unserializedCollection = $this->serializer->unserialize($this->serializer->serialize($traversable));
-
-        $this->assertEquals($traversable, $unserializedCollection);
-    }
+     } */
 
     /**
      * ArrayAccess serialization.
