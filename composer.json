@@ -4,7 +4,7 @@
     "description": "Serialize PHP variables, including objects, in any format. Support to unserialize it too.",
     "keywords": ["json", "serialize", "serializer"],
     "homepage": "http://nilportugues.com",
-    "license": "GPLv3",
+    "license": "GPL-3.0",
     "authors": [
 
         {
