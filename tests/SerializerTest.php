@@ -11,7 +11,7 @@ use NilPortugues\Test\Serializer\SupportClasses\EmptyClass;
 use NilPortugues\Test\Serializer\SupportClasses\TraversableClass;
 use stdClass;
 
-class JsonSerializerTest extends \PHPUnit_Framework_TestCase
+class SerializerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Serializer instance.
@@ -25,7 +25,6 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        parent::setUp();
         $this->serializer = new Serializer(new JsonStrategy());
     }
 
@@ -62,20 +61,20 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
      */
     public function scalarDataToJson()
     {
-        return array(
-            array('testing', '{"@scalar":"string","@value":"testing"}'),
-            array(123, '{"@scalar":"integer","@value":123}'),
-            array(0, '{"@scalar":"integer","@value":0}'),
-            array(0.0, '{"@scalar":"float","@value":0}'),
-            array(17.0, '{"@scalar":"float","@value":17}'),
-            array(17e1, '{"@scalar":"float","@value":170}'),
-            array(17.2, '{"@scalar":"float","@value":17.2}'),
-            array(true, '{"@scalar":"boolean","@value":true}'),
-            array(false, '{"@scalar":"boolean","@value":false}'),
-            array(null, '{"@scalar":"NULL","@value":null}'),
+        return [
+            ['testing', '{"@scalar":"string","@value":"testing"}'],
+            [123, '{"@scalar":"integer","@value":123}'],
+            [0, '{"@scalar":"integer","@value":0}'],
+            [0.0, '{"@scalar":"float","@value":0}'],
+            [17.0, '{"@scalar":"float","@value":17}'],
+            [17e1, '{"@scalar":"float","@value":170}'],
+            [17.2, '{"@scalar":"float","@value":17.2}'],
+            [true, '{"@scalar":"boolean","@value":true}'],
+            [false, '{"@scalar":"boolean","@value":false}'],
+            [null, '{"@scalar":"NULL","@value":null}'],
             // Non UTF8
-            array('ßåö', '{"@scalar":"string","@value":"ßåö"}'),
-        );
+            ['ßåö', '{"@scalar":"string","@value":"ßåö"}'],
+        ];
     }
 
     /**
@@ -93,9 +92,9 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
     public function testSerializeClosure()
     {
         $this->setExpectedException(SerializerException::class);
-        $this->serializer->serialize(array('func' => function () {
+        $this->serializer->serialize(['func' => function () {
             echo 'whoops';
-        }));
+        }]);
     }
 
     /**
@@ -131,16 +130,16 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
      */
     public function arrayNoObjectData()
     {
-        return array(
-            array(array(1, 2, 3), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"integer","@value":3}]}'),
-            array(array(1, 'abc', false), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"string","@value":"abc"},{"@scalar":"boolean","@value":false}]}'),
-            array(array('a' => 1, 'b' => 2, 'c' => 3), '{"@map":"array","@value":{"a":{"@scalar":"integer","@value":1},"b":{"@scalar":"integer","@value":2},"c":{"@scalar":"integer","@value":3}}}'),
-            array(array('integer' => 1, 'string' => 'abc', 'bool' => false), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"string":{"@scalar":"string","@value":"abc"},"bool":{"@scalar":"boolean","@value":false}}}'),
-            array(array(1, array('nested')), '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}]}'),
-            array(array('integer' => 1, 'array' => array('nested')), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}}}'),
-            array(array('integer' => 1, 'array' => array('nested' => 'object')), '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":{"nested":{"@scalar":"string","@value":"object"}}}}}'),
-            array(array(1.0, 2, 3e1), '{"@map":"array","@value":[{"@scalar":"float","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"float","@value":30}]}'),
-        );
+        return [
+            [[1, 2, 3], '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"integer","@value":3}]}'],
+            [[1, 'abc', false], '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@scalar":"string","@value":"abc"},{"@scalar":"boolean","@value":false}]}'],
+            [['a' => 1, 'b' => 2, 'c' => 3], '{"@map":"array","@value":{"a":{"@scalar":"integer","@value":1},"b":{"@scalar":"integer","@value":2},"c":{"@scalar":"integer","@value":3}}}'],
+            [['integer' => 1, 'string' => 'abc', 'bool' => false], '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"string":{"@scalar":"string","@value":"abc"},"bool":{"@scalar":"boolean","@value":false}}}'],
+            [[1, ['nested']], '{"@map":"array","@value":[{"@scalar":"integer","@value":1},{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}]}'],
+            [['integer' => 1, 'array' => ['nested']], '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":[{"@scalar":"string","@value":"nested"}]}}}'],
+            [['integer' => 1, 'array' => ['nested' => 'object']], '{"@map":"array","@value":{"integer":{"@scalar":"integer","@value":1},"array":{"@map":"array","@value":{"nested":{"@scalar":"string","@value":"object"}}}}}'],
+            [[1.0, 2, 3e1], '{"@map":"array","@value":[{"@scalar":"float","@value":1},{"@scalar":"integer","@value":2},{"@scalar":"float","@value":30}]}'],
+        ];
     }
 
     /**
@@ -166,7 +165,7 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
         $expected = '{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\AllVisibilities","pub":{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\EmptyClass"},"prot":{"@scalar":"string","@value":"protected"},"priv":{"@scalar":"string","@value":"dont tell anyone"}}';
         $this->assertSame($expected, $this->serializer->serialize($obj));
 
-        $array = array('instance' => $empty);
+        $array = ['instance' => $empty];
         $expected = '{"@map":"array","@value":{"instance":{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\EmptyClass"}}}';
         $this->assertSame($expected, $this->serializer->serialize($array));
 
@@ -335,7 +334,7 @@ class JsonSerializerTest extends \PHPUnit_Framework_TestCase
     public function testSerializationOfDatePeriodOutputIsSerializable()
     {
         $period = new \DatePeriod(new \DateTime('2012-07-01'),  new \DateInterval('P7D'), 4);
-        $dates = array();
+        $dates = [];
         foreach ($period as $p) {
             $dates[] = $p;
         }

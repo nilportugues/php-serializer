@@ -14,11 +14,7 @@ class ArrayAccessClass implements \ArrayAccess
      */
     public function __construct()
     {
-        $this->container = array(
-            'one' => 1,
-            'two' => 2,
-            'three' => 3,
-        );
+        $this->container = ['one' => 1, 'two' => 2, 'three' => 3,];
     }
 
     /**
@@ -54,6 +50,8 @@ class ArrayAccessClass implements \ArrayAccess
 
     /**
      * @param mixed $offset
+     *
+     * @return mixed|null
      */
     public function offsetGet($offset)
     {

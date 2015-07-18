@@ -8,14 +8,11 @@ class TraversableClass implements \Iterator
      * @var int
      */
     private $position = 0;
+
     /**
      * @var array
      */
-    private $array = array(
-        'firstelement',
-        'secondelement',
-        'lastelement',
-    );
+    private $array = ['firstelement', 'secondelement', 'lastelement',];
 
     /**
      *
