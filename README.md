@@ -5,7 +5,7 @@
 
 # Introduction 
 
-** What is serialization? **
+**What is serialization?**
 ```
 In the context of data storage, serialization is the process of translating data structures 
 or object state into a   format that can be stored (for example, in a file or memory buffer, 
@@ -13,7 +13,7 @@ or transmitted across a network connection link) and reconstructed later in the 
 another computer environment.
 ```
     
-** Why not `serialize()` and `unserialize()`?**
+**Why not `serialize()` and `unserialize()`?**
 
 These native functions rely on having the serialized classes loaded and available at runtime and tie your unserialization process to a `PHP` platform.
 
