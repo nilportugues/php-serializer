@@ -428,7 +428,7 @@ class Serializer
             return $value;
         }
 
-        $toArray = array(self::MAP_TYPE => 'array');
+        $toArray = array(self::MAP_TYPE => 'array', self::SCALAR_VALUE => []);
         foreach ($value as $key => $field) {
             $toArray[self::SCALAR_VALUE][$key] = $this->serializeData($field);
         }
