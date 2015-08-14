@@ -4,7 +4,7 @@
     "description": "Serialize PHP variables, including objects, in any format. Support to unserialize it too.",
     "keywords": ["json", "serialize", "serializer"],
     "homepage": "http://nilportugues.com",
-    "license": "GPL-3.0",
+    "license": "MIT",
     "authors": [
 
         {
@@ -15,12 +15,12 @@
         {
             "name": "Zumba Fitness, LLC",
             "email": "engineering@zumba.com",
-            "role": "Author of the original repository: https://github.com/zumba/json-serializer"
+            "role": "Author of the original idea: https://github.com/zumba/json-serializer"
         },
         {
             "name": "Juan Basso",
             "email": "juan.basso@zumba.com",
-            "role": "Author of the original repository: https://github.com/zumba/json-serializer"
+            "role": "Author of the original idea: https://github.com/zumba/json-serializer"
         }
     ],
     "require": {
