@@ -1,9 +1,13 @@
  Serializer for PHP
 =========================
 
-[![Build Status](https://travis-ci.org/nilportugues/serializer.svg)](https://travis-ci.org/nilportugues/serializer) [![Coverage Status](https://coveralls.io/repos/nilportugues/serializer/badge.svg?branch=master)](https://coveralls.io/r/nilportugues/serializer?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nilportugues/serializer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nilportugues/serializer/?branch=master)  [![SensioLabsInsight](https://insight.sensiolabs.com/projects/7ae05bba-985d-4359-8a00-3209f85f1d77/mini.png)](https://insight.sensiolabs.com/projects/7ae05bba-985d-4359-8a00-3209f85f1d77) [![Latest Stable Version](https://poser.pugx.org/nilportugues/serializer/v/stable)](https://packagist.org/packages/nilportugues/serializer) [![Total Downloads](https://poser.pugx.org/nilportugues/serializer/downloads)](https://packagist.org/packages/nilportugues/serializer) [![License](https://poser.pugx.org/nilportugues/serializer/license)](https://packagist.org/packages/nilportugues/serializer) 
+[![Build Status](https://travis-ci.org/nilportugues/serializer.svg)](https://travis-ci.org/nilportugues/serializer) 
+[![Coverage Status](https://coveralls.io/repos/nilportugues/serializer/badge.svg?branch=master)](https://coveralls.io/r/nilportugues/serializer?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nilportugues/serializer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nilportugues/serializer/?branch=master)  [![SensioLabsInsight](https://insight.sensiolabs.com/projects/7ae05bba-985d-4359-8a00-3209f85f1d77/mini.png)](https://insight.sensiolabs.com/projects/7ae05bba-985d-4359-8a00-3209f85f1d77) 
+[![Latest Stable Version](https://poser.pugx.org/nilportugues/serializer/v/stable)](https://packagist.org/packages/nilportugues/serializer) 
+[![Total Downloads](https://poser.pugx.org/nilportugues/serializer/downloads)](https://packagist.org/packages/nilportugues/serializer) [![License](https://poser.pugx.org/nilportugues/serializer/license)](https://packagist.org/packages/nilportugues/serializer) 
 
-# Introduction 
+## Introduction 
 
 **What is serialization?**
 
@@ -18,13 +22,13 @@ If the serialized string contains a reference to a class that cannot be instanti
 
 Is this a problem? Yes it is. Serialized data is now **unusable**.
 
-# Features
+## Features
 
 - All object variables, public, protected and private are serialized. 
 - Handles internal class serialization for objects such as SplFixedArray or classes implementing Traversable.
 
 
-# Usage
+## Usage
 For the serializer to work, all you need to do is pass in a PHP Object to the serializer, that will require of a represetation (aka Transformer). 
 
 In the following example a `$post` object is serialized into JSON. 
@@ -92,24 +96,21 @@ echo $serializer->serialize($post);
 }
 ```
 
+## Quality
 
-# Quality Code [↑](#index_block)
-Testing has been done using PHPUnit and [Travis-CI](https://travis-ci.org). All code has been tested to be compatible from PHP 5.5 up to PHP 7 and [HHVM](http://hhvm.com/).
+To run the PHPUnit tests at the command line, go to the tests directory and issue phpunit.
 
-To run the test suite, you need [Composer](http://getcomposer.org):
+This library attempts to comply with [PSR-1](http://www.php-fig.org/psr/psr-1/), [PSR-2](http://www.php-fig.org/psr/psr-2/), [PSR-4](http://www.php-fig.org/psr/psr-4/) and [PSR-7](http://www.php-fig.org/psr/psr-7/).
 
-```bash
-    php composer.phar install --dev
-    php bin/phpunit
-```
+If you notice compliance oversights, please send a patch via pull request.
 
-# Author
+
+## Author
+
 Nil Portugués Calderó
 
  - <contact@nilportugues.com>
  - [http://nilportugues.com](http://nilportugues.com)
 
-
-<a name="block6"></a>
-#  License [↑](#index_block)
-Code is licensed under the GPLv3 license.
+## License
+The code base is licensed under the MIT license.
