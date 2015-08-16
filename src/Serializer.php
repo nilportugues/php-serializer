@@ -92,6 +92,17 @@ class Serializer
     }
 
     /**
+     * This is handly specially in order to add additional data before the
+     * serialization process takes place using the transformer public methods, if any.
+     *
+     * @return StrategyInterface
+     */
+    public function getTransformer()
+    {
+        return $this->serializationStrategy;
+    }
+
+    /**
      * Serialize the value in JSON.
      *
      * @param mixed $value
