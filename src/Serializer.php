@@ -52,7 +52,7 @@ class Serializer
     /**
      * @var array
      */
-    private $serializationMap = array(
+    private $serializationMap = [
         'object' => 'serializeObject',
         'array' => 'serializeArray',
         'integer' => 'serializeScalar',
@@ -60,11 +60,7 @@ class Serializer
         'boolean' => 'serializeScalar',
         'string' => 'serializeScalar',
         'Traversable' => 'serializeArrayLikeObject',
-        //Hack specific serialization classes
-        'DateInterval' => '\NilPortugues\Serializer\Serializer\InternalClasses\DateIntervalSerializer::serialize',
-        'DateTimeZone' => '\NilPortugues\Serializer\Serializer\InternalClasses\DateTimeZoneSerializer::serialize',
-        'DateTimeImmutable' => '\NilPortugues\Serializer\Serializer\HHVM\DateTimeImmutableSerializer::serialize',
-    );
+    ];
 
     /**
      * @var bool
@@ -85,7 +81,11 @@ class Serializer
     {
         $this->isHHVM = defined('HHVM_VERSION');
         if ($this->isHHVM) {
-            $this->unserializationMapHHVM = include realpath(dirname(__FILE__).'/Mapping/hhvm.php');
+            $this->serializationMap = array_merge(
+                $this->serializationMap,
+                include realpath(dirname(__FILE__).'/Mapping/serialization_hhvm.php')
+            );
+            $this->unserializationMapHHVM = include realpath(dirname(__FILE__).'/Mapping/unserialization_hhvm.php');
         }
         $this->serializationStrategy = $strategy;
     }
@@ -123,7 +123,7 @@ class Serializer
     protected function reset()
     {
         $this->objectStorage = new SplObjectStorage();
-        $this->objectMapping = array();
+        $this->objectMapping = [];
         $this->objectMappingIndex = 0;
     }
 
@@ -229,7 +229,7 @@ class Serializer
             return $this->unserializeObject($value);
         }
 
-        return array_map(array($this, __FUNCTION__), $value);
+        return array_map([$this, __FUNCTION__], $value);
     }
 
     /**
@@ -419,7 +419,7 @@ class Serializer
      */
     protected function serializeArrayLikeObject($value)
     {
-        $toArray = array(self::CLASS_IDENTIFIER_KEY => get_class($value));
+        $toArray = [self::CLASS_IDENTIFIER_KEY => get_class($value)];
         foreach ($value as $field) {
             $toArray[] = $field;
         }
@@ -438,7 +438,7 @@ class Serializer
             return $value;
         }
 
-        $toArray = array(self::MAP_TYPE => 'array', self::SCALAR_VALUE => []);
+        $toArray = [self::MAP_TYPE => 'array', self::SCALAR_VALUE => []];
         foreach ($value as $key => $field) {
             $toArray[self::SCALAR_VALUE][$key] = $this->serializeData($field);
         }
@@ -449,36 +449,119 @@ class Serializer
     /**
      * Extract the data from an object.
      *
-     * @param string $value
+     * @param mixed $value
      *
      * @return array
      */
     protected function serializeObject($value)
     {
         if ($this->objectStorage->contains($value)) {
-            return array(self::CLASS_IDENTIFIER_KEY => '@'.$this->objectStorage[$value]);
+            return [self::CLASS_IDENTIFIER_KEY => '@'.$this->objectStorage[$value]];
         }
 
         $this->objectStorage->attach($value, $this->objectMappingIndex++);
 
-        $reader = Closure::bind(function () {
-            if (method_exists($this, '__sleep')) {
-                $properties = get_object_vars($this);
+        $reflection = new ReflectionClass($value);
+        $className = $reflection->getName();
+        if ($reflection->isUserDefined()) {
+            return $this->serializeUserClassWithClosureBinding($value, $className);
+        }
 
-                $serializable = array();
-                foreach ($this->__sleep() as $propertyName) {
-                    $serializable[$propertyName] = $properties[$propertyName];
+        return $this->serializeInternalClass($value, $className, $reflection);
+    }
+
+    /**
+     * @param mixed  $value
+     * @param string $className
+     *
+     * @return array
+     */
+    protected function serializeUserClassWithClosureBinding($value, $className)
+    {
+        $reader = Closure::bind(
+            function () {
+                if (method_exists($this, '__sleep')) {
+                    $properties = get_object_vars($this);
+
+                    $serializable = [];
+                    foreach ($this->__sleep() as $propertyName) {
+                        $serializable[$propertyName] = $properties[$propertyName];
+                    }
+
+                    return $serializable;
                 }
 
-                return $serializable;
-            }
-
-            return get_object_vars($this);
-        }, $value, $value);
+                return get_object_vars($this);
+            },
+            $value,
+            $value
+        );
 
         $paramsToSerialize = $reader($value);
-        $data = array(self::CLASS_IDENTIFIER_KEY => get_class($value));
-        $data += array_map(array($this, 'serializeData'), $paramsToSerialize);
+        $data = [self::CLASS_IDENTIFIER_KEY => $className];
+        $data += array_map([$this, 'serializeData'], $paramsToSerialize);
+
+        return $data;
+    }
+
+    /**
+     * @param mixed           $value
+     * @param string          $className
+     * @param ReflectionClass $ref
+     *
+     * @return array
+     */
+    protected function serializeInternalClass($value, $className, ReflectionClass $ref)
+    {
+        $paramsToSerialize = $this->getObjectProperties($ref, $value);
+        $data = [self::CLASS_IDENTIFIER_KEY => $className];
+        $data += array_map([$this, 'serializeData'], $this->extractObjectData($value, $ref, $paramsToSerialize));
+
+        return $data;
+    }
+
+    /**
+     * Return the list of properties to be serialized.
+     *
+     * @param ReflectionClass $ref
+     * @param object          $value
+     *
+     * @return array
+     */
+    protected function getObjectProperties(ReflectionClass $ref, $value)
+    {
+        if (method_exists($value, '__sleep')) {
+            return $value->__sleep();
+        }
+        $props = [];
+        foreach ($ref->getProperties() as $prop) {
+            $props[] = $prop->getName();
+        }
+
+        return array_unique(array_merge($props, array_keys(get_object_vars($value))));
+    }
+
+    /**
+     * Extract the object data.
+     *
+     * @param object          $value
+     * @param ReflectionClass $ref
+     * @param array           $properties
+     *
+     * @return array
+     */
+    protected function extractObjectData($value, $ref, $properties)
+    {
+        $data = [];
+        foreach ($properties as $property) {
+            try {
+                $propRef = $ref->getProperty($property);
+                $propRef->setAccessible(true);
+                $data[$property] = $propRef->getValue($value);
+            } catch (ReflectionException $e) {
+                $data[$property] = $value->$property;
+            }
+        }
 
         return $data;
     }
