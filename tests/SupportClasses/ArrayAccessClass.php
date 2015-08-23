@@ -14,7 +14,7 @@ class ArrayAccessClass implements \ArrayAccess
      */
     public function __construct()
     {
-        $this->container = ['one' => 1, 'two' => 2, 'three' => 3,];
+        $this->container = ['one' => 1, 'two' => 2, 'three' => 3];
     }
 
     /**

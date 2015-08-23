@@ -2,6 +2,7 @@
 
 namespace NilPortugues\Serializer;
 
+use Closure;
 use NilPortugues\Serializer\Strategy\StrategyInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -75,12 +76,7 @@ class Serializer
      *
      * @var array
      */
-    private $unserializationMapHHVM = [
-        'DateInterval' => '\NilPortugues\Serializer\Serializer\InternalClasses\DateIntervalSerializer::unserialize',
-        'DateTimeZone' => '\NilPortugues\Serializer\Serializer\InternalClasses\DateTimeZoneSerializer::unserialize',
-        'DateTimeImmutable' => '\NilPortugues\Serializer\Serializer\HHVM\DateTimeImmutableSerializer::unserialize',
-        'DateTime' => '\NilPortugues\Serializer\Serializer\HHVM\DateTimeSerializer::unserialize',
-    ];
+    private $unserializationMapHHVM = [];
 
     /**
      * @param StrategyInterface $strategy
@@ -88,6 +84,9 @@ class Serializer
     public function __construct(StrategyInterface $strategy)
     {
         $this->isHHVM = defined('HHVM_VERSION');
+        if ($this->isHHVM) {
+            $this->unserializationMapHHVM = include realpath(dirname(__FILE__).'/Mapping/hhvm.php');
+        }
         $this->serializationStrategy = $strategy;
     }
 
@@ -170,7 +169,7 @@ class Serializer
      */
     protected function guardForUnsupportedValues($value)
     {
-        if ($value instanceof \Closure) {
+        if ($value instanceof Closure) {
             throw new SerializerException('Closures are not supported in Serializer');
         }
 
@@ -456,64 +455,30 @@ class Serializer
      */
     protected function serializeObject($value)
     {
-        $ref = new ReflectionClass($value);
         if ($this->objectStorage->contains($value)) {
             return array(self::CLASS_IDENTIFIER_KEY => '@'.$this->objectStorage[$value]);
         }
 
         $this->objectStorage->attach($value, $this->objectMappingIndex++);
-        $paramsToSerialize = $this->getObjectProperties($ref, $value);
 
-        $data = array(self::CLASS_IDENTIFIER_KEY => $ref->getName());
+        $reader = Closure::bind(function () {
+            if (method_exists($this, '__sleep')) {
+                $properties = get_object_vars($this);
 
-        $data += array_map(array($this, 'serializeData'), $this->extractObjectData($value, $ref, $paramsToSerialize));
+                $serializable = array();
+                foreach ($this->__sleep() as $propertyName) {
+                    $serializable[$propertyName] = $properties[$propertyName];
+                }
 
-        return $data;
-    }
-
-    /**
-     * Return the list of properties to be serialized.
-     *
-     * @param ReflectionClass $ref
-     * @param object          $value
-     *
-     * @return array
-     */
-    protected function getObjectProperties(ReflectionClass $ref, $value)
-    {
-        if (method_exists($value, '__sleep')) {
-            return $value->__sleep();
-        }
-
-        $props = array();
-        foreach ($ref->getProperties() as $prop) {
-            $props[] = $prop->getName();
-        }
-
-        return array_unique(array_merge($props, array_keys(get_object_vars($value))));
-    }
-
-    /**
-     * Extract the object data.
-     *
-     * @param object          $value
-     * @param ReflectionClass $ref
-     * @param array           $properties
-     *
-     * @return array
-     */
-    protected function extractObjectData($value, $ref, $properties)
-    {
-        $data = array();
-        foreach ($properties as $property) {
-            try {
-                $propRef = $ref->getProperty($property);
-                $propRef->setAccessible(true);
-                $data[$property] = $propRef->getValue($value);
-            } catch (ReflectionException $e) {
-                $data[$property] = $value->$property;
+                return $serializable;
             }
-        }
+
+            return get_object_vars($this);
+        }, $value, $value);
+
+        $paramsToSerialize = $reader($value);
+        $data = array(self::CLASS_IDENTIFIER_KEY => get_class($value));
+        $data += array_map(array($this, 'serializeData'), $paramsToSerialize);
 
         return $data;
     }

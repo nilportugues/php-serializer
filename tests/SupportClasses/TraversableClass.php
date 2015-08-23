@@ -12,7 +12,7 @@ class TraversableClass implements \Iterator
     /**
      * @var array
      */
-    private $array = ['firstelement', 'secondelement', 'lastelement',];
+    private $array = ['firstelement', 'secondelement', 'lastelement'];
 
     /**
      *
