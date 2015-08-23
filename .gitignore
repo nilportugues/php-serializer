@@ -1,2 +1,6 @@
-bin
-vendor
+bin/
+.idea/
+vendor/
+composer.lock
+build/
+.coveralls.yml
