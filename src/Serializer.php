@@ -520,7 +520,7 @@ class Serializer
      * Return the list of properties to be serialized.
      *
      * @param ReflectionClass $ref
-     * @param mixed           $value
+     * @param $value
      *
      * @return array
      */
@@ -540,13 +540,13 @@ class Serializer
     /**
      * Extract the object data.
      *
-     * @param mixed           $value
+     * @param $value
      * @param ReflectionClass $ref
      * @param array           $properties
      *
      * @return array
      */
-    protected function extractObjectData($value, $ref, $properties)
+    protected function extractObjectData($value, ReflectionClass $ref, $properties)
     {
         $data = [];
         foreach ($properties as $property) {
