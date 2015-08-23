@@ -40,7 +40,7 @@ class Serializer
     private $objectMappingIndex = 0;
 
     /**
-     * @var \NilPortugues\Serializer\Strategy\JsonStrategy
+     * @var \NilPortugues\Serializer\Strategy\StrategyInterface|\NilPortugues\Serializer\Strategy\JsonStrategy
      */
     private $serializationStrategy;
 
@@ -242,16 +242,12 @@ class Serializer
         switch ($value[self::SCALAR_TYPE]) {
             case 'integer':
                 return intval($value[self::SCALAR_VALUE]);
-                break;
             case 'float':
                 return floatval($value[self::SCALAR_VALUE]);
-                break;
             case 'boolean':
                 return $value[self::SCALAR_VALUE];
-                break;
             case 'NULL':
                 return self::NULL_VAR;
-                break;
         }
 
         return $value[self::SCALAR_VALUE];
@@ -524,7 +520,7 @@ class Serializer
      * Return the list of properties to be serialized.
      *
      * @param ReflectionClass $ref
-     * @param object          $value
+     * @param mixed           $value
      *
      * @return array
      */
@@ -544,7 +540,7 @@ class Serializer
     /**
      * Extract the object data.
      *
-     * @param object          $value
+     * @param mixed           $value
      * @param ReflectionClass $ref
      * @param array           $properties
      *

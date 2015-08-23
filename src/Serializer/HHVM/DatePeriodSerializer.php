@@ -15,7 +15,7 @@ namespace NilPortugues\Serializer\Serializer\HHVM;
  */
 class DatePeriodSerializer
 {
-    //@todo: HHVM's implementation is completely different
+    //HHVM's implementation is completely different
     /*
  [start:DatePeriod:private] => DateTime Object
         (
