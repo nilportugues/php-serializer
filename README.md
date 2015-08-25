@@ -6,6 +6,17 @@
 [![Latest Stable Version](https://poser.pugx.org/nilportugues/serializer/v/stable)](https://packagist.org/packages/nilportugues/serializer) 
 [![Total Downloads](https://poser.pugx.org/nilportugues/serializer/downloads)](https://packagist.org/packages/nilportugues/serializer) [![License](https://poser.pugx.org/nilportugues/serializer/license)](https://packagist.org/packages/nilportugues/serializer) 
 
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Usage](#usage)
+ - [Object Serialization](#object-serialization)
+ - [Object Transformation](#object-transformation)
+- [Quality](#quality)
+- [Author](#author)
+- [License](#license)
+
+
 ## Introduction 
 
 **What is serialization?**
@@ -28,7 +39,9 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 
 
 ## Usage
-For the serializer to work, all you need to do is pass in a PHP Object to the serializer, that will require of a represetation (aka Transformer). 
+
+### Object Serialization
+For the serializer to work, all you need to do is pass in a PHP Object to the serializer and a Strategy to implement its string representation.
 
 In the following example a `$post` object is serialized into JSON. 
 
@@ -173,7 +186,9 @@ array (
 
 This is made available to the `StrategyInterface`, allowing to implement new `Strategy` formats, or `Transformer` classes. 
 
-**BIG DIFFERENCE** between a `Strategy` class and a `Transformer` class is that `Transformers` cannot unserialize(), while all `Strategy` classes can.
+### Object Transformation
+
+Transformer classes **GREATLY DIFFER** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation.
 
 For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
 
