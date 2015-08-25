@@ -10,8 +10,8 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Usage](#usage)
- - [Object Serialization](#object-serialization)
- - [Object Transformation](#object-transformation)
+ - [Serialization](#object-serialization)
+ - [Transformation](#object-transformation)
 - [Quality](#quality)
 - [Author](#author)
 - [License](#license)
@@ -40,7 +40,7 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 
 ## Usage
 
-### Object Serialization
+### Serialization
 For the serializer to work, all you need to do is pass in a PHP Object to the serializer and a Strategy to implement its string representation.
 
 In the following example a `$post` object is serialized into JSON. 
@@ -186,14 +186,14 @@ array (
 
 This is made available to the `StrategyInterface`, allowing to implement new `Strategy` formats, or `Transformer` classes. 
 
-### Object Transformation
+### Transformation
 
 Transformer classes **GREATLY DIFFER** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation.
 
 For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
 
 ```php
-use NilPortugues\Serializer\Transformer\Json\JsonTransformer();
+use NilPortugues\Serializer\Transformer\Json\JsonTransformer;
 
 //...same as before ...
 
