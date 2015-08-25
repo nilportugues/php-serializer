@@ -145,15 +145,9 @@ class Serializer
         }
 
         if (is_object($value) && in_array('Traversable', class_implements(get_class($value)))) {
-            $toArray = [];
-            foreach ($value as $k => $v) {
-                $toArray[$k] = $v;
-            }
+            $ref = new ReflectionClass($value);
 
-            return array_merge(
-                [self::CLASS_IDENTIFIER_KEY => get_class($value)],
-                $this->serializeData($toArray)
-            );
+            return $this->serializeInternalClass($value, $ref->getName(), $ref);
         }
 
         $type = (gettype($value) && $value !== null) ? gettype($value) : 'string';

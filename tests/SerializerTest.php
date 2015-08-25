@@ -419,4 +419,14 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($obj->c2->c3, $obj->c2->c3->c3);
         $this->assertSame($obj->c2->c3_copy, $obj->c2->c3);
     }
+
+    public function testItCanSerializeAndUnserializeTraversableClass()
+    {
+        $elements = [new \DateTime('now')];
+        $collection = new \Doctrine\Common\Collections\ArrayCollection($elements);
+        $serializer = new Serializer(new \NilPortugues\Serializer\Strategy\JsonStrategy());
+        $serialized = $serializer->serialize($collection);
+
+        $this->assertEquals($collection, $serializer->unserialize($serialized));
+    }
 }
