@@ -36,7 +36,7 @@ In the following example a `$post` object is serialized into JSON.
 
 ```php
 use NilPortugues\Serializer\Serializer;
-use NilPortugues\Serializer\Transformer\Json\JsonTransformer;
+use NilPortugues\Serializer\Strategy\JsonStrategy;
 
 //Example object
 $post = new Post(
@@ -61,13 +61,220 @@ $post = new Post(
 );
 
 //Serialization 
-$transformer = new JsonTransformer();
-$serializer = new Serializer($transformer);
+$serializer = new Serializer(new JsonStrategy());
 
 echo $serializer->serialize($post);
 ```
 
-**Output**
+The object, before it's transformed into an output format, is an array with all the necessary data to be rebuild using unserialize method. 
+
+```php
+array (
+  '@type' => 'Acme\\Domain\\Dummy\\Post',
+  'postId' => 
+  array (
+    '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\PostId',
+    'postId' => 
+    array (
+      '@scalar' => 'integer',
+      '@value' => 14,
+    ),
+  ),
+  'title' => 
+  array (
+    '@scalar' => 'string',
+    '@value' => 'Hello World',
+  ),
+  'content' => 
+  array (
+    '@scalar' => 'string',
+    '@value' => 'Your first post',
+  ),
+  'author' => 
+  array (
+    '@type' => 'Acme\\Domain\\Dummy\\User',
+    'userId' => 
+    array (
+      '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\UserId',
+      'userId' => 
+      array (
+        '@scalar' => 'integer',
+        '@value' => 1,
+      ),
+    ),
+    'name' => 
+    array (
+      '@scalar' => 'string',
+      '@value' => 'Post Author',
+    ),
+  ),
+  'comments' => 
+  array (
+    '@map' => 'array',
+    '@value' => 
+    array (
+      0 => 
+      array (
+        '@type' => 'Acme\\Domain\\Dummy\\Comment',
+        'commentId' => 
+        array (
+          '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\CommentId',
+          'commentId' => 
+          array (
+            '@scalar' => 'integer',
+            '@value' => 1000,
+          ),
+        ),
+        'dates' => 
+        array (
+          '@map' => 'array',
+          '@value' => 
+          array (
+            'created_at' => 
+            array (
+              '@scalar' => 'string',
+              '@value' => '2015-07-18T12:13:00+00:00',
+            ),
+            'accepted_at' => 
+            array (
+              '@scalar' => 'string',
+              '@value' => '2015-07-19T00:00:00+00:00',
+            ),
+          ),
+        ),
+        'comment' => 
+        array (
+          '@scalar' => 'string',
+          '@value' => 'Have no fear, sers, your king is safe.',
+        ),
+        'user' => 
+        array (
+          '@type' => 'Acme\\Domain\\Dummy\\User',
+          'userId' => 
+          array (
+            '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\UserId',
+            'userId' => 
+            array (
+              '@scalar' => 'integer',
+              '@value' => 2,
+            ),
+          ),
+          'name' => 
+          array (
+            '@scalar' => 'string',
+            '@value' => 'Barristan Selmy',
+          ),
+        ),
+      ),
+    ),
+  ),
+)
+```
+
+This is made available to the `StrategyInterface`, allowing to implement new `Strategy` formats, or `Transformer` classes. 
+
+**BIG DIFFERENCE** between a `Strategy` class and a `Transformer` class is that `Transformers` cannot unserialize(), while all `Strategy` classes can.
+
+For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
+
+```php
+use NilPortugues\Serializer\Transformer\Json\JsonTransformer();
+
+//...same as before ...
+
+$serializer = new Serializer(new JsonTransformer());
+
+echo $serializer->serialize($post);
+```
+
+`JsonStrategy` and `JsonTransformer` output is provided in order to compare which one suits your needs best.
+
+
+
+**Output with JsonStrategy**
+
+```json
+{
+    "@type": "Acme\\\\Domain\\\\Dummy\\\\Post",
+    "postId": {
+        "@type": "Acme\\\\Domain\\\\Dummy\\\\ValueObject\\\\PostId",
+        "postId": {
+            "@scalar": "integer",
+            "@value": 14
+        }
+    },
+    "title": {
+        "@scalar": "string",
+        "@value": "Hello World"
+    },
+    "content": {
+        "@scalar": "string",
+        "@value": "Your first post"
+    },
+    "author": {
+        "@type": "Acme\\\\Domain\\\\Dummy\\\\User",
+        "userId": {
+            "@type": "Acme\\\\Domain\\\\Dummy\\\\ValueObject\\\\UserId",
+            "userId": {
+                "@scalar": "integer",
+                "@value": 1
+            }
+        },
+        "name": {
+            "@scalar": "string",
+            "@value": "Post Author"
+        }
+    },
+    "comments": {
+        "@map": "array",
+        "@value": [
+            {
+                "@type": "Acme\\\\Domain\\\\Dummy\\\\Comment",
+                "commentId": {
+                    "@type": "Acme\\\\Domain\\\\Dummy\\\\ValueObject\\\\CommentId",
+                    "commentId": {
+                        "@scalar": "integer",
+                        "@value": 1000
+                    }
+                },
+                "dates": {
+                    "@map": "array",
+                    "@value": {
+                        "created_at": {
+                            "@scalar": "string",
+                            "@value": "2015-07-18T12:13:00+00:00"
+                        },
+                        "accepted_at": {
+                            "@scalar": "string",
+                            "@value": "2015-07-19T00:00:00+00:00"
+                        }
+                    }
+                },
+                "comment": {
+                    "@scalar": "string",
+                    "@value": "Have no fear, sers, your king is safe."
+                },
+                "user": {
+                    "@type": "Acme\\\\Domain\\\\Dummy\\\\User",
+                    "userId": {
+                        "@type": "Acme\\\\Domain\\\\Dummy\\\\ValueObject\\\\UserId",
+                        "userId": {
+                            "@scalar": "integer",
+                            "@value": 2
+                        }
+                    },
+                    "name": {
+                        "@scalar": "string",
+                        "@value": "Barristan Selmy"
+                    }
+                }
+            }
+        ]
+    }
+}'
+```
+
+**Output with JsonTransformer**
 
 ```json
 {
