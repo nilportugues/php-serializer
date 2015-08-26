@@ -12,6 +12,7 @@
 - [Usage](#usage)
  - [Serialization](#serialization)
  - [Transformation](#transformation)
+- [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
 - [Author](#author)
 - [License](#license)
@@ -316,6 +317,15 @@ echo $serializer->serialize($post);
     ]
 }
 ```
+
+## Reserved key words
+
+The parser uses the following reserved key words to store the necessary data to serialize and unserialize objects:
+
+- **@type**: if object property is a class, this key is used to store the class name.
+- **@scalar**: for each property, stores the scalar type as a string.
+- **@value**: the real property value.
+- **@map**: always is 'array'
 
 ## Quality
 
