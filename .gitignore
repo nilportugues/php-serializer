@@ -4,4 +4,3 @@ vendor/
 composer.lock
 build/
 .coveralls.yml
- 
