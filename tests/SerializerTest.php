@@ -29,6 +29,21 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test serialization of DateTime classes.
+     *
+     * Some interal classes, such as DateTime, cannot be initialized with
+     * ReflectionClass::newInstanceWithoutConstructor()
+     */
+    public function testSerializationOfDateTime()
+    {
+        $date = new \DateTime('2014-06-15 12:00:00', new \DateTimeZone('UTC'));
+
+        $obj = $this->serializer->unserialize($this->serializer->serialize($date));
+        $this->assertSame($date->getTimestamp(), $obj->getTimestamp());
+        $this->assertEquals($date, $obj);
+    }
+
+    /**
      * Test serialization of scalar values.
      *
      * @dataProvider scalarDataToJson
@@ -208,7 +223,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
     public function testSerializationMagicMethods()
     {
         $obj = new SupportClasses\MagicClass();
-        $serialized = '{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\MagicClass","show":{"@scalar":"boolean","@value":true}}';
+        $serialized = '{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\MagicClass","show":{"@scalar":"boolean","@value":true},"hide":{"@scalar":"boolean","@value":true},"woke":{"@scalar":"boolean","@value":false}}';
         $this->assertSame($serialized, $this->serializer->serialize($obj));
         $this->assertFalse($obj->woke);
 
@@ -248,20 +263,6 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
         $unserializedCollection = $this->serializer->unserialize($this->serializer->serialize($arrayAccess));
 
         $this->assertEquals($arrayAccess, $unserializedCollection);
-    }
-
-    /**
-     * Test serialization of DateTime classes.
-     *
-     * Some interal classes, such as DateTime, cannot be initialized with
-     * ReflectionClass::newInstanceWithoutConstructor()
-     */
-    public function testSerializationOfDateTime()
-    {
-        $date = new \DateTime('2014-06-15 12:00:00', new \DateTimeZone('UTC'));
-        $obj = $this->serializer->unserialize($this->serializer->serialize($date));
-        $this->assertSame($date->getTimestamp(), $obj->getTimestamp());
-        $this->assertEquals($date, $obj);
     }
 
     /**

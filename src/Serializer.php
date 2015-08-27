@@ -53,13 +53,11 @@ class Serializer
      * @var array
      */
     private $serializationMap = [
-        'object' => 'serializeObject',
         'array' => 'serializeArray',
         'integer' => 'serializeScalar',
         'double' => 'serializeScalar',
         'boolean' => 'serializeScalar',
         'string' => 'serializeScalar',
-        'Traversable' => 'serializeArrayLikeObject',
     ];
 
     /**
@@ -144,10 +142,8 @@ class Serializer
             return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
         }
 
-        if (is_object($value) && in_array('Traversable', class_implements(get_class($value)))) {
-            $ref = new ReflectionClass($value);
-
-            return $this->serializeInternalClass($value, $ref->getName(), $ref);
+        if (is_object($value)) {
+            return $this->serializeObject($value);
         }
 
         $type = (gettype($value) && $value !== null) ? gettype($value) : 'string';
@@ -453,45 +449,8 @@ class Serializer
 
         $reflection = new ReflectionClass($value);
         $className = $reflection->getName();
-        if ($reflection->isUserDefined()) {
-            return $this->serializeUserClassWithClosureBinding($value, $className);
-        }
 
         return $this->serializeInternalClass($value, $className, $reflection);
-    }
-
-    /**
-     * @param mixed  $value
-     * @param string $className
-     *
-     * @return array
-     */
-    protected function serializeUserClassWithClosureBinding($value, $className)
-    {
-        $reader = Closure::bind(
-            function () {
-                if (method_exists($this, '__sleep')) {
-                    $properties = get_object_vars($this);
-
-                    $serializable = [];
-                    foreach ($this->__sleep() as $propertyName) {
-                        $serializable[$propertyName] = $properties[$propertyName];
-                    }
-
-                    return $serializable;
-                }
-
-                return get_object_vars($this);
-            },
-            $value,
-            $value
-        );
-
-        $paramsToSerialize = $reader($value);
-        $data = [self::CLASS_IDENTIFIER_KEY => $className];
-        $data += array_map([$this, 'serializeData'], $paramsToSerialize);
-
-        return $data;
     }
 
     /**
@@ -520,9 +479,6 @@ class Serializer
      */
     protected function getObjectProperties(ReflectionClass $ref, $value)
     {
-        if (method_exists($value, '__sleep')) {
-            return $value->__sleep();
-        }
         $props = [];
         foreach ($ref->getProperties() as $prop) {
             $props[] = $prop->getName();
@@ -534,25 +490,60 @@ class Serializer
     /**
      * Extract the object data.
      *
-     * @param $value
-     * @param ReflectionClass $ref
-     * @param array           $properties
+     * @param mixed            $value
+     * @param \ReflectionClass $rc
+     * @param array            $properties
      *
      * @return array
      */
-    protected function extractObjectData($value, ReflectionClass $ref, $properties)
+    protected function extractObjectData($value, ReflectionClass $rc, array $properties)
     {
         $data = [];
-        foreach ($properties as $property) {
-            try {
-                $propRef = $ref->getProperty($property);
-                $propRef->setAccessible(true);
-                $data[$property] = $propRef->getValue($value);
-            } catch (ReflectionException $e) {
-                $data[$property] = $value->$property;
-            }
-        }
+
+        $this->extractCurrentObjectProperties($value, $rc, $properties, $data);
+        $this->extractAllInhertitedProperties($value, $rc, $data);
 
         return $data;
+    }
+
+    /**
+     * @param mixed           $value
+     * @param ReflectionClass $rc
+     * @param array           $properties
+     * @param array           $data
+     */
+    protected function extractCurrentObjectProperties($value, ReflectionClass $rc, array $properties, array &$data)
+    {
+        foreach ($properties as $propertyName) {
+            try {
+                $propRef = $rc->getProperty($propertyName);
+                $propRef->setAccessible(true);
+                $data[$propertyName] = $propRef->getValue($value);
+            } catch (ReflectionException $e) {
+                $data[$propertyName] = $value->$propertyName;
+            }
+        }
+    }
+
+    /**
+     * @param mixed           $value
+     * @param ReflectionClass $rc
+     * @param array           $data
+     */
+    protected function extractAllInhertitedProperties($value, ReflectionClass $rc, array &$data)
+    {
+        do {
+            $rp = array();
+            /* @var $property \ReflectionProperty */
+            foreach ($rc->getProperties() as $property) {
+                try {
+                    $property->setAccessible(true);
+                    $rp[$property->getName()] = $property->getValue($this);
+                } catch (\ReflectionException $e) {
+                    $data[$property->getName()] = $value->$property;
+                }
+            }
+            $data = array_merge($rp, $data);
+        } while ($rc = $rc->getParentClass());
     }
 }
