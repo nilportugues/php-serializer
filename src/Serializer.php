@@ -23,26 +23,26 @@ class Serializer
      *
      * @var SplObjectStorage
      */
-    private $objectStorage;
+    protected  $objectStorage;
 
     /**
      * Object mapping for recursion.
      *
      * @var array
      */
-    private $objectMapping = [];
+    protected $objectMapping = [];
 
     /**
      * Object mapping index.
      *
      * @var int
      */
-    private $objectMappingIndex = 0;
+    protected $objectMappingIndex = 0;
 
     /**
      * @var \NilPortugues\Serializer\Strategy\StrategyInterface|\NilPortugues\Serializer\Strategy\JsonStrategy
      */
-    private $serializationStrategy;
+    protected $serializationStrategy;
 
     /**
      * @var array
@@ -52,7 +52,7 @@ class Serializer
     /**
      * @var array
      */
-    private $serializationMap = [
+    protected $serializationMap = [
         'array' => 'serializeArray',
         'integer' => 'serializeScalar',
         'double' => 'serializeScalar',
@@ -63,14 +63,14 @@ class Serializer
     /**
      * @var bool
      */
-    private $isHHVM;
+    protected $isHHVM;
 
     /**
      * Hack specific serialization classes.
      *
      * @var array
      */
-    private $unserializationMapHHVM = [];
+    protected $unserializationMapHHVM = [];
 
     /**
      * @param StrategyInterface $strategy
