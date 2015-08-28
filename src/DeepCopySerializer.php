@@ -25,10 +25,8 @@ class DeepCopySerializer extends Serializer
     protected function serializeObject($value)
     {
         if ($this->objectStorage->contains($value)) {
-            return [self::CLASS_IDENTIFIER_KEY => $this->objectStorage[$value]];
+            return $this->objectStorage[$value];
         }
-
-        $this->objectStorage->attach($value, $this->objectMappingIndex++);
 
         $reflection = new ReflectionClass($value);
         $className = $reflection->getName();
