@@ -1,17 +1,16 @@
 <?php
+
 /**
  * Author: Nil Portugués Calderó <contact@nilportugues.com>
  * Date: 8/28/15
- * Time: 1:44 AM
+ * Time: 1:44 AM.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace NilPortugues\Serializer;
 
 use ReflectionClass;
-
 
 class DeepCopySerializer extends Serializer
 {
@@ -36,5 +35,4 @@ class DeepCopySerializer extends Serializer
 
         return $serialized;
     }
-
-} 
+}

@@ -23,7 +23,7 @@ class Serializer
      *
      * @var SplObjectStorage
      */
-    protected  $objectStorage;
+    protected $objectStorage;
 
     /**
      * Object mapping for recursion.

@@ -1,14 +1,18 @@
 <?php
 
-namespace NilPortugues\Serializer\Transformer\Json;
+/**
+ * Author: Nil Portugués Calderó <contact@nilportugues.com>
+ * Date: 8/29/15
+ * Time: 2:48 PM.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace NilPortugues\Serializer\Transformer;
 
 use NilPortugues\Serializer\Serializer;
-use NilPortugues\Serializer\Transformer\AbstractTransformer;
 
-/**
- * Class JsonTransformer.
- */
-class JsonTransformer extends AbstractTransformer
+class ArrayTransformer  extends AbstractTransformer
 {
     public function __construct()
     {
@@ -26,6 +30,6 @@ class JsonTransformer extends AbstractTransformer
         $this->recursiveUnset($value, [Serializer::CLASS_IDENTIFIER_KEY]);
         $this->recursiveFlattenOneElementObjectsToScalarType($value);
 
-        return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return $value;
     }
 }
