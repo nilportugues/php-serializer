@@ -16,6 +16,6 @@ class XmlSerializer extends Serializer
 {
     public function __construct()
     {
-        $this->serializationStrategy = new XmlStrategy();
+        parent::__construct(new XmlStrategy());
     }
 }

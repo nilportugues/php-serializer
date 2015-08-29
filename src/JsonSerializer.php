@@ -16,6 +16,6 @@ class JsonSerializer extends Serializer
 {
     public function __construct()
     {
-        $this->serializationStrategy = new JsonStrategy();
+        parent::__construct(new JsonStrategy());
     }
 }

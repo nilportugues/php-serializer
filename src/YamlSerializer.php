@@ -16,6 +16,6 @@ class YamlSerializer extends Serializer
 {
     public function __construct()
     {
-        $this->serializationStrategy = new YamlStrategy();
+        parent::__construct(new YamlStrategy());
     }
 }
