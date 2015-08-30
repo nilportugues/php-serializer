@@ -92,7 +92,8 @@ class XmlStrategy implements StrategyInterface
         $array = (array) simplexml_load_string($value);
         self::castToArray($array);
         self::recoverArrayNumericKeyValues($array);
-        $array = self::replaceKeys(array_flip($this->replacements), $array);
+        $replacements = array_flip($this->replacements);
+        $array = self::replaceKeys($replacements, $array);
 
         //replace np_serializer_element to numeric array
 
@@ -145,15 +146,8 @@ class XmlStrategy implements StrategyInterface
         $newKey = str_replace('np_serializer_element_', '', $key);
         list($type, $index) = explode('_', $newKey);
 
-        switch ($type) {
-            case 'integer':
-                $index = (int) $index;
-                break;
-
-            case 'float':
-            case 'double':
-                $index = (float) $index;
-                break;
+        if ('integer' === $type) {
+            $index = (int) $index;
         }
 
         return $index;

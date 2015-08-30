@@ -430,4 +430,22 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($collection, $serializer->unserialize($serialized));
     }
+
+    public function testItCanGetTransformer()
+    {
+        $strategy = new \NilPortugues\Serializer\Strategy\JsonStrategy();
+        $serializer = new Serializer($strategy);
+
+        $this->assertSame($strategy, $serializer->getTransformer());
+    }
+
+    public function testSerializationOfAnArrayOfScalars()
+    {
+        $scalar = 'a string';
+
+        $serializer = new Serializer(new \NilPortugues\Serializer\Strategy\JsonStrategy());
+        $serialized = $serializer->serialize($scalar);
+
+        $this->assertEquals($scalar, $serializer->unserialize($serialized));
+    }
 }

@@ -36,7 +36,7 @@
             <directory>./src/</directory>
             <exclude>
                 <directory>./src/Mapping/</directory>
-                <directory>./src/Serializer/HHVM/</directory>
+                <directory>./src/Serializer/</directory>
                 <directory>./vendor/</directory>
             </exclude>
         </whitelist>

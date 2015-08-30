@@ -79,11 +79,13 @@ class Serializer
     {
         $this->isHHVM = defined('HHVM_VERSION');
         if ($this->isHHVM) {
+            // @codeCoverageIgnoreStart
             $this->serializationMap = array_merge(
                 $this->serializationMap,
                 include realpath(dirname(__FILE__).'/Mapping/serialization_hhvm.php')
             );
             $this->unserializationMapHHVM = include realpath(dirname(__FILE__).'/Mapping/unserialization_hhvm.php');
+            // @codeCoverageIgnoreEnd
         }
         $this->serializationStrategy = $strategy;
     }
@@ -139,7 +141,9 @@ class Serializer
         $this->guardForUnsupportedValues($value);
 
         if ($this->isHHVM && ($value instanceof \DateTimeZone || $value instanceof \DateInterval)) {
+            // @codeCoverageIgnoreStart
             return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
+            // @codeCoverageIgnoreEnd
         }
 
         if (is_object($value)) {
@@ -286,10 +290,12 @@ class Serializer
 
         if ($this->isDateTimeFamilyObject($className)) {
             if ($this->isHHVM) {
+                // @codeCoverageIgnoreStart
                 return call_user_func_array(
                     $this->unserializationMapHHVM[$className],
                     [$this, $className, $value]
                 );
+                // @codeCoverageIgnoreEnd
             }
 
             $obj = $this->restoreUsingUnserialize($className, $value);
@@ -396,21 +402,6 @@ class Serializer
             self::SCALAR_TYPE => $type,
             self::SCALAR_VALUE => $value,
         ];
-    }
-
-    /**
-     * @param \Traversable|\ArrayAccess $value
-     *
-     * @return mixed
-     */
-    protected function serializeArrayLikeObject($value)
-    {
-        $toArray = [self::CLASS_IDENTIFIER_KEY => get_class($value)];
-        foreach ($value as $field) {
-            $toArray[] = $field;
-        }
-
-        return $this->serializeData($toArray);
     }
 
     /**
@@ -536,12 +527,8 @@ class Serializer
             $rp = array();
             /* @var $property \ReflectionProperty */
             foreach ($rc->getProperties() as $property) {
-                try {
-                    $property->setAccessible(true);
-                    $rp[$property->getName()] = $property->getValue($this);
-                } catch (\ReflectionException $e) {
-                    $data[$property->getName()] = $value->$property;
-                }
+                $property->setAccessible(true);
+                $rp[$property->getName()] = $property->getValue($this);
             }
             $data = array_merge($rp, $data);
         } while ($rc = $rc->getParentClass());
