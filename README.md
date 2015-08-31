@@ -14,6 +14,12 @@
    - [Example](#example)
    - [Custom Serializers](#custom-serializers)
 - [Data Transformation](#data-transformation)
+   - [ArrayTransformer](#arraytransformer)
+   - [FlatArrayTransformer](#flatarraytransformer) 
+   - [JsonTransformer](#jsontransformer)
+   - [JSendApiTransformer](#jsendtransformer)
+   - [JsonApiTransformer](#jsonapitransformer)
+   - [HalJsonTransformer](#haljsontransformer)
 - [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
 - [Author](#author)
@@ -209,22 +215,74 @@ Transformer classes **greatly differ** from a `Strategy` class because these can
 
 To obtain transformations instead of the `Serializer` class usage of `DeepCopySerializer` is required.
 
-For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
+The Serializer library comes with a set of defined Transformers that implement the `StrategyInterface`. 
+Usage is as simple as before, pass a Transformer as a `$strategy`. 
+
+For instance:
 
 ```php
-use NilPortugues\Serializer\Transformer\Json\JsonTransformer;
-
 //...same as before ...
 
-$strategy = new JsonTransformer();
-$serializer = new DeepCopySerializer($strategy);
-
+$serializer = new DeepCopySerializer(new JsonTransformer());
 echo $serializer->serialize($post);
 ```
 
-`JsonSerializer` output differs from the one provided by the  `JsonTransformer` output is provided in order to compare which one suits your needs best.
+Following, there are some examples and its output, given the `$post` object as data to be Transformed.
 
-**Output with JsonTransformer strategy**
+### ArrayTransformer
+
+```php
+array(
+  'postId' => 9,
+  'title' => 'Hello World',
+  'content' => 'Your first post',
+  'author' => array(
+       'userId' => 1,
+       'name' => 'Post Author',
+   ),
+  'comments' => array(
+          0 => array(
+           'commentId' => 1000,
+           'dates' => array(
+              'created_at' => '2015-07-18T12:13:00+02:00',
+              'accepted_at' => '2015-07-19T00:00:00+02:00',
+            ),
+           'comment' => 'Have no fear, sers, your king is safe.',
+           'user' => array(
+             'userId' => 2,
+             'name' => 'Barristan Selmy',
+            ),
+          ),
+      ),
+);
+```
+
+### FlatArrayTransformer
+
+```php
+array(
+  'postId' => 9,
+  'title' => 'Hello World',
+  'content' => 'Your first post',
+  'author.userId' => 1,
+  'author.name' => 'Post Author',
+  'comments.0.commentId' => 1000,
+  'comments.0.dates.created_at' => '2015-07-18T12:13:00+02:00',
+  'comments.0.dates.accepted_at' => '2015-07-19T00:00:00+02:00',
+  'comments.0.comment' => 'Have no fear, sers, your king is safe.',
+  'comments.0.user.userId' => 2,
+  'comments.0.user.name' => 'Barristan Selmy',
+);
+```
+
+
+### JsonTransformer
+
+JsonTransformer comes in 2 flavours. For object to JSON transformation the following transformer should be used:
+
+- [`NilPortugues\Serializer\Transformer\JsonTransformer`](https://github.com/nilportugues/serializer/blob/master/src/Transformer/JsonTransformer.php)
+
+**Output**
 
 ```json
 {
@@ -250,7 +308,12 @@ echo $serializer->serialize($post);
         }
     ]
 }
-```
+``` 
+
+
+If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using `composer require nilportugues/json`
+
+
 
 ## Reserved key words
 
