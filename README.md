@@ -20,7 +20,6 @@
    - [JSend Transformer](#jsend-transformer)
    - [JSON API Transformer](#json-api-transformer)
    - [HAL+JSON Transformer](#hal-json-transformer)
-- [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
 - [Author](#author)
 - [License](#license)
@@ -209,6 +208,9 @@ $serializer = new Serializer(new CustomStrategy());
 echo $serializer->serialize($post);
 ```
 
+----
+
+
 ## Data Transformation
 
 Transformer classes **greatly differ** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation. 
@@ -346,16 +348,8 @@ Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/
 
 `composer require nilportugues/haljson`
 
+----
 
-
-## Reserved key words
-
-The parser uses the following reserved key words to store the necessary data to serialize and unserialize objects:
-
-- **@type**: if object property is a class, this key is used to store the class name.
-- **@scalar**: for each property, stores the scalar type as a string.
-- **@value**: the real property value.
-- **@map**: always is `array`.
 
 ## Quality
 
