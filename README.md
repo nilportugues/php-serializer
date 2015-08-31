@@ -372,7 +372,9 @@ JsonTransformer comes in 2 flavours. For object to JSON transformation the follo
 
 If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using:
 
-`composer require nilportugues/json`
+```json
+$ composer require nilportugues/json
+```
 
 
 ### JSend Transformer
@@ -381,7 +383,9 @@ JSend Transformer has been built to transform data into valid **JSend** specific
 
 Please check out the [JSend Transformer](https://github.com/nilportugues/jsend-transformer) or download it using:
 
-`composer require nilportugues/jsend`
+```json
+$ composer require nilportugues/jsend
+```
 
 
 ### JSON API Transformer
@@ -390,7 +394,9 @@ JSON API Transformer has been built to transform data into valid **JSON API** sp
 
 Please check out the [JSON API Transformer](https://github.com/nilportugues/jsonapi-transformer) or download it using:
 
-`composer require nilportugues/json-api`
+```json
+$ composer require nilportugues/json-api
+```
 
 
 ### HAL+JSON Transformer
@@ -399,7 +405,9 @@ HAL+JSON Transformer has been built for **HAL+JSON API creation**. Given an obje
 
 Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/hal-json-transformer) or download it using:
 
-`composer require nilportugues/haljson`
+```json
+$ composer require nilportugues/haljson
+```
 
 ----
 
