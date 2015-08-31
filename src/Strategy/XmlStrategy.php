@@ -95,8 +95,6 @@ class XmlStrategy implements StrategyInterface
         $replacements = array_flip($this->replacements);
         $array = self::replaceKeys($replacements, $array);
 
-        //replace np_serializer_element to numeric array
-
         return $array;
     }
 
