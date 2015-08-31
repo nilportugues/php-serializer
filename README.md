@@ -62,9 +62,9 @@ For the serializer to work, all you need to do is pass in a PHP Object to the se
 
 ### Serializers (JSON, XML, YAML)
 
-- [JsonSerializer](https://github.com/nilportugues/serializer/blob/master/src/JsonSerializer.php)
-- [XmlSerializer](https://github.com/nilportugues/serializer/blob/master/src/XmlSerializer.php)
-- [YamlSerializer](https://github.com/nilportugues/serializer/blob/master/src/YamlSerializer.php)
+- [NilPortugues\Serializer\JsonSerializer](https://github.com/nilportugues/serializer/blob/master/src/JsonSerializer.php)
+- [NilPortugues\Serializer\XmlSerializer](https://github.com/nilportugues/serializer/blob/master/src/XmlSerializer.php)
+- [NilPortugues\Serializer\YamlSerializer](https://github.com/nilportugues/serializer/blob/master/src/YamlSerializer.php)
 
 ### Example
 
@@ -312,6 +312,14 @@ JsonTransformer comes in 2 flavours. For object to JSON transformation the follo
 
 
 If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using `composer require nilportugues/json`
+
+### HalJsonTransformer
+
+HalJsonTransformer has been built for HAL+JSON API creation. Given an object and a series of mappings a valid HAL+JSON resource representation is given as output.
+
+Please check out the [HalTransformer library](https://github.com/nilportugues/hal-json-transformer) or download it using `composer require nilportugues/haljson`
+
+
 
 
 
