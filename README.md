@@ -6,7 +6,7 @@
 [![Latest Stable Version](https://poser.pugx.org/nilportugues/serializer/v/stable)](https://packagist.org/packages/nilportugues/serializer) 
 [![Total Downloads](https://poser.pugx.org/nilportugues/serializer/downloads)](https://packagist.org/packages/nilportugues/serializer) [![License](https://poser.pugx.org/nilportugues/serializer/license)](https://packagist.org/packages/nilportugues/serializer) 
 
-
+- [Installation](#installation)
 - [Introduction](#introduction)
 - [Features](#features)
 - [Serialization](#serialization)
@@ -21,9 +21,17 @@
    - [JSON API Transformer](#json-api-transformer)
    - [HAL+JSON Transformer](#haljson-transformer)
 - [Quality](#quality)
+- [Contribute](#contribute)
 - [Author](#author)
 - [License](#license)
 
+## Installation
+
+Use [Composer](https://getcomposer.org) to install the package:
+
+```json
+$ composer require nilportugues/serializer
+```
 
 ## Introduction 
 
@@ -42,17 +50,14 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 
 ## Features
 
-- Serialize to JSON, XML and YAML formats.
+- Serialize to **JSON**, **XML** and **YAML** formats.
 - Serializes **exact copies** of the object provided:
  - **All object properties**, public, protected and private are serialized.
  - All properties from the current object, and all the inherited properties are read and serialized.
 - Handles internal class serialization for objects such as SplFixedArray or classes implementing Traversable.
-- Basic **Data Transformers provided** to convert objects to different output formats:
-  - ArrayTransformer
-  - FlatArrayTransformer
-  - JsonTransformer
+- Basic **Data Transformers provided** to convert objects to different output formats.
 - **Production-ready**.
-- **Extensible:** easily write your out `Serializer` format or `Transformers`.
+- **Extensible:** easily write your out `Serializer` format or data `Transformers`.
 
 
 ## Serialization
@@ -359,13 +364,17 @@ This library attempts to comply with [PSR-1](http://www.php-fig.org/psr/psr-1/),
 
 If you notice compliance oversights, please send a patch via pull request.
 
+## Contribute
 
-## Author
+Contributions to the package are always welcome!
 
-Nil Portugués Calderó
+* Report any bugs or issues you find on the [issue tracker](https://github.com/nilportugues/serializer/issues/new).
+* You can grab the source code at the package's [Git repository](https://github.com/nilportugues/serializer).
 
- - <contact@nilportugues.com>
- - [http://nilportugues.com](http://nilportugues.com)
+## Authors
+
+* [Nil Portugués Calderó](http://nilportugues.com)
+* [The Community Contributors](https://github.com/nilportugues/symfony2-jsonapi-transformer/graphs/contributors)
 
 ## License
 The code base is licensed under the MIT license.
