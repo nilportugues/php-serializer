@@ -54,11 +54,6 @@ class XmlTransformer extends ArrayTransformer
                 }
                 $subnode = $xmlData->addChild($key);
 
-                $type = gettype($value);
-                if ('array' !== $type) {
-                    $subnode->addAttribute('type', $type);
-                }
-
                 $this->arrayToXml($value, $subnode);
             } else {
                 $subnode = $xmlData->addChild("$key", "$value");
