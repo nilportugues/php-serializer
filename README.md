@@ -358,9 +358,9 @@ Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/
 
 ## Quality
 
-To run the PHPUnit tests at the command line, go to the tests directory and issue phpunit.
+To run the PHPUnit tests at the command line, go to the tests directory and issue `phpunit`.
 
-This library attempts to comply with [PSR-1](http://www.php-fig.org/psr/psr-1/), [PSR-2](http://www.php-fig.org/psr/psr-2/), [PSR-4](http://www.php-fig.org/psr/psr-4/) and [PSR-7](http://www.php-fig.org/psr/psr-7/).
+This library attempts to comply with [PSR-2](http://www.php-fig.org/psr/psr-2/) and [PSR-4](http://www.php-fig.org/psr/psr-4/).
 
 If you notice compliance oversights, please send a patch via pull request.
 
@@ -374,7 +374,7 @@ Contributions to the package are always welcome!
 ## Authors
 
 * [Nil Portugués Calderó](http://nilportugues.com)
-* [The Community Contributors](https://github.com/nilportugues/symfony2-jsonapi-transformer/graphs/contributors)
+* [The Community Contributors](https://github.com/nilportugues/serializer/graphs/contributors)
 
 ## License
 The code base is licensed under the MIT license.
