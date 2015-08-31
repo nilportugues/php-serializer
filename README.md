@@ -56,9 +56,9 @@ For the serializer to work, all you need to do is pass in a PHP Object to the se
 
 ### Serializers (JSON, XML, YAML)
 
-- JsonSerializer
-- XmlSerializer
-- YamlSerializer
+- [JsonSerializer](https://github.com/nilportugues/serializer/blob/master/src/JsonSerializer.php)
+- [XmlSerializer](https://github.com/nilportugues/serializer/blob/master/src/XmlSerializer.php)
+- [YamlSerializer](https://github.com/nilportugues/serializer/blob/master/src/YamlSerializer.php)
 
 ### Example
 
