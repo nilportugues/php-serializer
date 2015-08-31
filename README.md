@@ -19,7 +19,7 @@
    - [JSON Transformer](#json-transformer)
    - [JSend Transformer](#jsend-transformer)
    - [JSON API Transformer](#json-api-transformer)
-   - [HAL+JSON Transformer](#hal-json-transformer)
+   - [HAL+JSON Transformer](#haljson-transformer)
 - [Quality](#quality)
 - [Author](#author)
 - [License](#license)
