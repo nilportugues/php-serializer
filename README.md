@@ -14,12 +14,12 @@
    - [Example](#example)
    - [Custom Serializers](#custom-serializers)
 - [Data Transformation](#data-transformation)
-   - [ArrayTransformer](#arraytransformer)
-   - [FlatArrayTransformer](#flatarraytransformer) 
-   - [JsonTransformer](#jsontransformer)
+   - [Array Transformer](#array-transformer)
+   - [Flat Array Transformer](#flat-array-transformer) 
+   - [JSON Transformer](#json-transformer)
    - [JSendApiTransformer](#jsendtransformer)
-   - [JsonApiTransformer](#jsonapitransformer)
-   - [HalJsonTransformer](#haljsontransformer)
+   - [JSON API Transformer](#jsonapitransformer)
+   - [HAL+JSON Transformer](#haljsontransformer)
 - [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
 - [Author](#author)
@@ -218,7 +218,7 @@ To obtain transformations instead of the `Serializer` class usage of `DeepCopySe
 The Serializer library comes with a set of defined Transformers that implement the `StrategyInterface`. 
 Usage is as simple as before, pass a Transformer as a `$strategy`. 
 
-For instance:
+**For instance:**
 
 ```php
 //...same as before ...
@@ -229,7 +229,7 @@ echo $serializer->serialize($post);
 
 Following, there are some examples and its output, given the `$post` object as data to be Transformed.
 
-### ArrayTransformer
+### Array Transformer
 
 ```php
 array(
@@ -257,7 +257,7 @@ array(
 );
 ```
 
-### FlatArrayTransformer
+### Flat Array Transformer
 
 ```php
 array(
@@ -276,7 +276,7 @@ array(
 ```
 
 
-### JsonTransformer
+### Json Transformer
 
 JsonTransformer comes in 2 flavours. For object to JSON transformation the following transformer should be used:
 
@@ -310,14 +310,28 @@ JsonTransformer comes in 2 flavours. For object to JSON transformation the follo
 }
 ``` 
 
-
 If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using `composer require nilportugues/json`
 
-### HalJsonTransformer
 
-HalJsonTransformer has been built for HAL+JSON API creation. Given an object and a series of mappings a valid HAL+JSON resource representation is given as output.
+### JSend Transformer
 
-Please check out the [HalTransformer library](https://github.com/nilportugues/hal-json-transformer) or download it using `composer require nilportugues/haljson`
+JSend Transformer has been built to transform data into valid **JSend** specification resources.
+
+Please check out the [JSend Transformer](https://github.com/nilportugues/jsend-transformer) or download it using `composer require nilportugues/jsend`
+
+
+### JSON API Transformer
+
+JSON API Transformer has been built to transform data into valid **JSON API** specification resources.
+
+Please check out the [JSON API Transformer](https://github.com/nilportugues/jsonapi-transformer) or download it using `composer require nilportugues/json-api`
+
+
+### HAL+JSON Transformer
+
+HAL+JSON Transformer has been built for **HAL+JSON API creation**. Given an object and a series of mappings a valid HAL+JSON resource representation is given as output.
+
+Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/hal-json-transformer) or download it using `composer require nilportugues/haljson`
 
 
 
