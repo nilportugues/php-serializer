@@ -17,6 +17,8 @@
 - [Data Transformation](#data-transformation)
    - [Array Transformer](#array-transformer)
    - [Flat Array Transformer](#flat-array-transformer) 
+   - [XML Transformer](#xml-transformer) 
+   - [YAML Transformer](#yaml-transformer) 
    - [JSON Transformer](#json-transformer)
    - [JSend Transformer](#jsend-transformer)
    - [JSON API Transformer](#json-api-transformer)
@@ -288,6 +290,51 @@ array(
 );
 ```
 
+### XML Transformer
+
+- [`NilPortugues\Serializer\Transformer\XmlTransformer`](https://github.com/nilportugues/serializer/blob/master/src/Transformer/XmlTransformer.php)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <postId type="integer">9</postId>
+  <title type="string">Hello World</title>
+  <content type="string">Your first post</content>
+  <author>
+    <userId type="integer">1</userId>
+    <name type="string">Post Author</name>
+  </author>
+  <comments>
+    <sequential-item>
+      <commentId type="integer">1000</commentId>
+      <dates>
+        <created_at type="string">2015-07-18T12:13:00+02:00</created_at>
+        <accepted_at type="string">2015-07-19T00:00:00+02:00</accepted_at>
+      </dates>
+      <comment type="string">Have no fear, sers, your king is safe.</comment>
+      <user>
+        <userId type="integer">2</userId>
+        <name type="string">Barristan Selmy</name>
+      </user>
+    </sequential-item>
+  </comments>
+</data>
+```
+
+### YAML Transformer
+
+- [`NilPortugues\Serializer\Transformer\YamlTransformer`](https://github.com/nilportugues/serializer/blob/master/src/Transformer/YamlTransformer.php)
+
+```yml
+title: 'Hello World'
+content: 'Your first post'
+author:
+    userId: 1
+    name: 'Post Author'
+comments:
+    - { commentId: 1000, dates: { created_at: '2015-07-18T12:13:00+02:00', accepted_at: '2015-07-19T00:00:00+02:00' }, comment: 'Have no fear, sers, your king is safe.', user: { userId: 2, name: 'Barristan Selmy' } }
+```
+
 
 ### Json Transformer
 
@@ -325,7 +372,9 @@ JsonTransformer comes in 2 flavours. For object to JSON transformation the follo
 
 If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using:
 
-`composer require nilportugues/json`
+```json
+$ composer require nilportugues/json
+```
 
 
 ### JSend Transformer
@@ -334,7 +383,9 @@ JSend Transformer has been built to transform data into valid **JSend** specific
 
 Please check out the [JSend Transformer](https://github.com/nilportugues/jsend-transformer) or download it using:
 
-`composer require nilportugues/jsend`
+```json
+$ composer require nilportugues/jsend
+```
 
 
 ### JSON API Transformer
@@ -343,7 +394,9 @@ JSON API Transformer has been built to transform data into valid **JSON API** sp
 
 Please check out the [JSON API Transformer](https://github.com/nilportugues/jsonapi-transformer) or download it using:
 
-`composer require nilportugues/json-api`
+```json
+$ composer require nilportugues/json-api
+```
 
 
 ### HAL+JSON Transformer
@@ -352,7 +405,9 @@ HAL+JSON Transformer has been built for **HAL+JSON API creation**. Given an obje
 
 Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/hal-json-transformer) or download it using:
 
-`composer require nilportugues/haljson`
+```json
+$ composer require nilportugues/haljson
+```
 
 ----
 
