@@ -231,6 +231,9 @@ Following, there are some examples and its output, given the `$post` object as d
 
 ### Array Transformer
 
+- [`NilPortugues\Serializer\Transformer\ArrayTransformer`](https://github.com/nilportugues/serializer/blob/master/src/Transformer/ArrayTransformer.php)
+
+
 ```php
 array(
   'postId' => 9,
@@ -258,6 +261,8 @@ array(
 ```
 
 ### Flat Array Transformer
+
+- [`NilPortugues\Serializer\Transformer\FlatArrayTransformer`](https://github.com/nilportugues/serializer/blob/master/src/Transformer/FlatArrayTransformer.php)
 
 ```php
 array(
@@ -310,30 +315,36 @@ JsonTransformer comes in 2 flavours. For object to JSON transformation the follo
 }
 ``` 
 
-If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using `composer require nilportugues/json`
+If your desired output is for **API consumption**, you may like to check out the JsonTransformer library, or require it using:
+
+`composer require nilportugues/json`
 
 
 ### JSend Transformer
 
 JSend Transformer has been built to transform data into valid **JSend** specification resources.
 
-Please check out the [JSend Transformer](https://github.com/nilportugues/jsend-transformer) or download it using `composer require nilportugues/jsend`
+Please check out the [JSend Transformer](https://github.com/nilportugues/jsend-transformer) or download it using:
+
+`composer require nilportugues/jsend`
 
 
 ### JSON API Transformer
 
 JSON API Transformer has been built to transform data into valid **JSON API** specification resources.
 
-Please check out the [JSON API Transformer](https://github.com/nilportugues/jsonapi-transformer) or download it using `composer require nilportugues/json-api`
+Please check out the [JSON API Transformer](https://github.com/nilportugues/jsonapi-transformer) or download it using:
+
+`composer require nilportugues/json-api`
 
 
 ### HAL+JSON Transformer
 
 HAL+JSON Transformer has been built for **HAL+JSON API creation**. Given an object and a series of mappings a valid HAL+JSON resource representation is given as output.
 
-Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/hal-json-transformer) or download it using `composer require nilportugues/haljson`
+Please check out the [HAL+JSON API Transformer](https://github.com/nilportugues/hal-json-transformer) or download it using:
 
-
+`composer require nilportugues/haljson`
 
 
 
