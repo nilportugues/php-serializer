@@ -11,7 +11,7 @@
 - [Features](#features)
 - [Usage](#usage)
  - [Serialization](#serialization)
-   - [Serializers (JSON, XML, YAML)](#serializers-json-xml-yaml))
+   - [Serializers (JSON, XML, YAML)](#serializers-json-xml-yaml)
     - [Example](#example)
     - [Custom Serializers](#custom-serializers)
  - [Transformation](#transformation)
