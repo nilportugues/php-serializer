@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/nilportugues/serializer/badge.svg?branch=master&service=github?)](https://coveralls.io/github/nilportugues/serializer?branch=master)
+
  Serializer for PHP
 =========================
 
