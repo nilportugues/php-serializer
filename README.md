@@ -38,12 +38,15 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 
 ## Features
 
+- Serialize to JSON, XML and YAML formats.
 - Serializes **exact copies** of the object provided:
  - **All object properties**, public, protected and private are serialized.
  - All properties from the current object, and all the inherited properties are read and serialized.
 - Handles internal class serialization for objects such as SplFixedArray or classes implementing Traversable.
-- `Serializers` outputing multiple formats are provided.
-- Presentational `Transformers` are provided too.
+- Basic **Data Transformers provided** to convert objects to different output formats:
+  - ArrayTransformer
+  - FlatArrayTransformer
+  - JsonTransformer
 - **Production-ready**.
 - **Extensible:** easily write your out `Serializer` format or `Transformers`.
 
