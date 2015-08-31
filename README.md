@@ -81,137 +81,12 @@ $post = new Post(
 );
 
 //Serialization 
-$serializer = new Serializer(new JsonStrategy());
+$serializer = new JsonSerializer();
 
 echo $serializer->serialize($post);
 ```
 
 The object, before it's transformed into an output format, is an array with all the necessary data to be rebuild using unserialize method. 
-
-```php
-array (
-  '@type' => 'Acme\\Domain\\Dummy\\Post',
-  'postId' => 
-  array (
-    '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\PostId',
-    'postId' => 
-    array (
-      '@scalar' => 'integer',
-      '@value' => 14,
-    ),
-  ),
-  'title' => 
-  array (
-    '@scalar' => 'string',
-    '@value' => 'Hello World',
-  ),
-  'content' => 
-  array (
-    '@scalar' => 'string',
-    '@value' => 'Your first post',
-  ),
-  'author' => 
-  array (
-    '@type' => 'Acme\\Domain\\Dummy\\User',
-    'userId' => 
-    array (
-      '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\UserId',
-      'userId' => 
-      array (
-        '@scalar' => 'integer',
-        '@value' => 1,
-      ),
-    ),
-    'name' => 
-    array (
-      '@scalar' => 'string',
-      '@value' => 'Post Author',
-    ),
-  ),
-  'comments' => 
-  array (
-    '@map' => 'array',
-    '@value' => 
-    array (
-      0 => 
-      array (
-        '@type' => 'Acme\\Domain\\Dummy\\Comment',
-        'commentId' => 
-        array (
-          '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\CommentId',
-          'commentId' => 
-          array (
-            '@scalar' => 'integer',
-            '@value' => 1000,
-          ),
-        ),
-        'dates' => 
-        array (
-          '@map' => 'array',
-          '@value' => 
-          array (
-            'created_at' => 
-            array (
-              '@scalar' => 'string',
-              '@value' => '2015-07-18T12:13:00+00:00',
-            ),
-            'accepted_at' => 
-            array (
-              '@scalar' => 'string',
-              '@value' => '2015-07-19T00:00:00+00:00',
-            ),
-          ),
-        ),
-        'comment' => 
-        array (
-          '@scalar' => 'string',
-          '@value' => 'Have no fear, sers, your king is safe.',
-        ),
-        'user' => 
-        array (
-          '@type' => 'Acme\\Domain\\Dummy\\User',
-          'userId' => 
-          array (
-            '@type' => 'Acme\\Domain\\Dummy\\ValueObject\\UserId',
-            'userId' => 
-            array (
-              '@scalar' => 'integer',
-              '@value' => 2,
-            ),
-          ),
-          'name' => 
-          array (
-            '@scalar' => 'string',
-            '@value' => 'Barristan Selmy',
-          ),
-        ),
-      ),
-    ),
-  ),
-)
-```
-
-This is made available to the `StrategyInterface`, allowing to implement new `Strategy` formats, or `Transformer` classes. 
-
-### Transformation
-
-Transformer classes **GREATLY DIFFER** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation.
-
-For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
-
-```php
-use NilPortugues\Serializer\Transformer\Json\JsonTransformer;
-
-//...same as before ...
-
-$serializer = new Serializer(new JsonTransformer());
-
-echo $serializer->serialize($post);
-```
-
-`JsonStrategy` and `JsonTransformer` output is provided in order to compare which one suits your needs best.
-
-
 
 **Output with JsonStrategy**
 
@@ -296,7 +171,41 @@ echo $serializer->serialize($post);
 }'
 ```
 
-**Output with JsonTransformer**
+If a custom serialization strategy is preferred, the `Serializer` class should be used instead. A `CustomStrategy` must implement the `StrategyInterface`.
+
+Usage is as follows:
+
+```php
+use NilPortugues\Serializer\Serializer;
+use NilPortugues\Serializer\Strategy\CustomStrategy;
+
+$serializer = new Serializer(new CustomStrategy());
+
+echo $serializer->serialize($post);
+```
+
+### Transformation
+
+Transformer classes **GREATLY DIFFER** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation. 
+
+To obtain transformations instead of the `Serializer` class usage of `DeepCopySerializer` is required.
+
+For instance, the library comes with the `JsonTransformer`. Usage is as simple as before, pass to the serializer the new `$strategy`.
+
+```php
+use NilPortugues\Serializer\Transformer\Json\JsonTransformer;
+
+//...same as before ...
+
+$strategy = new JsonTransformer();
+$serializer = new DeepCopySerializer($strategy);
+
+echo $serializer->serialize($post);
+```
+
+`JsonSerializer` output differs from the one provided by the  `JsonTransformer` output is provided in order to compare which one suits your needs best.
+
+**Output with JsonTransformer strategy**
 
 ```json
 {
