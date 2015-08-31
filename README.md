@@ -11,6 +11,9 @@
 - [Features](#features)
 - [Usage](#usage)
  - [Serialization](#serialization)
+   - [Serializers (JSON, XML, YAML)](#serializers-json-xml-yaml))
+    - [Example](#example)
+    - [Custom Serializers](#custom-serializers)
  - [Transformation](#transformation)
 - [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
@@ -49,6 +52,15 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 
 ### Serialization
 For the serializer to work, all you need to do is pass in a PHP Object to the serializer and a Strategy to implement its string representation.
+
+
+#### Serializers (JSON, XML, YAML)
+
+- JsonSerializer
+- XmlSerializer
+- YamlSerializer
+
+#### Example
 
 In the following example a `$post` object is serialized into JSON. 
 
@@ -170,6 +182,8 @@ The object, before it's transformed into an output format, is an array with all 
     }
 }'
 ```
+
+#### Custom Serializers
 
 If a custom serialization strategy is preferred, the `Serializer` class should be used instead. A `CustomStrategy` must implement the `StrategyInterface`.
 
