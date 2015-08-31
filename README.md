@@ -9,12 +9,11 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Usage](#usage)
- - [Serialization](#serialization)
-   - [Serializers (JSON, XML, YAML)](#serializers-json-xml-yaml)
-    - [Example](#example)
-    - [Custom Serializers](#custom-serializers)
- - [Transformation](#transformation)
+- [Serialization](#serialization)
+  - [Serializers (JSON, XML, YAML)](#serializers-json-xml-yaml)
+   - [Example](#example)
+   - [Custom Serializers](#custom-serializers)
+- [Data Transformation](#data-transformation)
 - [Reserved key words](#reserved-key-words) 
 - [Quality](#quality)
 - [Author](#author)
@@ -51,19 +50,17 @@ Is this a problem? Yes it is. Serialized data is now **unusable**.
 - **Extensible:** easily write your out `Serializer` format or `Transformers`.
 
 
-## Usage
-
-### Serialization
+## Serialization
 For the serializer to work, all you need to do is pass in a PHP Object to the serializer and a Strategy to implement its string representation.
 
 
-#### Serializers (JSON, XML, YAML)
+### Serializers (JSON, XML, YAML)
 
 - JsonSerializer
 - XmlSerializer
 - YamlSerializer
 
-#### Example
+### Example
 
 In the following example a `$post` object is serialized into JSON. 
 
@@ -191,7 +188,7 @@ The object, before it's transformed into an output format, is an array with all 
 }'
 ```
 
-#### Custom Serializers
+### Custom Serializers
 
 If a custom serialization strategy is preferred, the `Serializer` class should be used instead. A `CustomStrategy` must implement the `StrategyInterface`.
 
@@ -206,9 +203,9 @@ $serializer = new Serializer(new CustomStrategy());
 echo $serializer->serialize($post);
 ```
 
-### Transformation
+## Data Transformation
 
-Transformer classes **GREATLY DIFFER** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation. 
+Transformer classes **greatly differ** from a `Strategy` class because these cannot `unserialize()` as all class references are lost in the process of transformation. 
 
 To obtain transformations instead of the `Serializer` class usage of `DeepCopySerializer` is required.
 
