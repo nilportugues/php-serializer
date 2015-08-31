@@ -98,12 +98,17 @@ $post = new Post(
 //Serialization 
 $serializer = new JsonSerializer();
 
-echo $serializer->serialize($post);
+$serializedObject = $serializer->serialize($post);
+
+//Returns: true
+var_dump($post == $serializer->unserialize($serializedObject));
+
+echo $serializedObject;
 ```
 
 The object, before it's transformed into an output format, is an array with all the necessary data to be rebuild using unserialize method. 
 
-**Output with JsonStrategy**
+**Output**
 
 ```json
 {
