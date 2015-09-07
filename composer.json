@@ -32,7 +32,8 @@
         "fabpot/php-cs-fixer": "^1.9",
         "mmoreram/php-formatter": "dev-master",
         "satooshi/php-coveralls": "dev-master",
-        "doctrine/collections": "^1.3"
+        "doctrine/collections": "^1.3",
+        "illuminate/database": "~5"
     },
     "autoload": {
         "psr-4": {
