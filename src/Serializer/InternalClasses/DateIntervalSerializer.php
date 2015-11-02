@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Serializer\InternalClasses;
 
 use DateInterval;
@@ -72,10 +73,10 @@ class DateIntervalSerializer
     public static function serialize(Serializer $serializer, DateInterval $dateInterval)
     {
         return array(
-            Serializer::CLASS_IDENTIFIER_KEY => get_class($dateInterval),
+            Serializer::CLASS_IDENTIFIER_KEY => \get_class($dateInterval),
             'construct' => array(
                 Serializer::SCALAR_TYPE => 'string',
-                Serializer::SCALAR_VALUE => sprintf(
+                Serializer::SCALAR_VALUE => \sprintf(
                     'P%sY%sM%sDT%sH%sM%sS',
                     $dateInterval->y,
                     $dateInterval->m,
@@ -90,7 +91,7 @@ class DateIntervalSerializer
                 Serializer::SCALAR_VALUE => (empty($dateInterval->invert)) ? 0 : 1,
             ),
             'days' => array(
-                Serializer::SCALAR_TYPE => gettype($dateInterval->days),
+                Serializer::SCALAR_TYPE => \gettype($dateInterval->days),
                 Serializer::SCALAR_VALUE => $dateInterval->days,
             ),
         );

@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Strategy;
 
 use NilPortugues\Serializer\Serializer;
@@ -49,9 +50,9 @@ class XmlStrategy implements StrategyInterface
     {
         $return = [];
         foreach ($input as $key => $value) {
-            $key = str_replace(array_keys($replacements), array_values($replacements), $key);
+            $key = \str_replace(\array_keys($replacements), \array_values($replacements), $key);
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = self::replaceKeys($replacements, $value);
             }
 
@@ -70,8 +71,8 @@ class XmlStrategy implements StrategyInterface
     private function arrayToXml(array &$data, SimpleXMLElement $xmlData)
     {
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                if (is_numeric($key)) {
+            if (\is_array($value)) {
+                if (\is_numeric($key)) {
                     $key = 'np_serializer_element_'.gettype($key).'_'.$key;
                 }
                 $subnode = $xmlData->addChild($key);
@@ -89,10 +90,10 @@ class XmlStrategy implements StrategyInterface
      */
     public function unserialize($value)
     {
-        $array = (array) simplexml_load_string($value);
+        $array = (array) \simplexml_load_string($value);
         self::castToArray($array);
         self::recoverArrayNumericKeyValues($array);
-        $replacements = array_flip($this->replacements);
+        $replacements = \array_flip($this->replacements);
         $array = self::replaceKeys($replacements, $array);
 
         return $array;
@@ -108,7 +109,7 @@ class XmlStrategy implements StrategyInterface
                 $value = (array) $value;
             }
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 self::castToArray($value);
             }
         }
@@ -121,13 +122,13 @@ class XmlStrategy implements StrategyInterface
     {
         $newArray = [];
         foreach ($array as $key => &$value) {
-            if (false !== strpos($key, 'np_serializer_element_')) {
+            if (false !== \strpos($key, 'np_serializer_element_')) {
                 $key = self::getNumericKeyValue($key);
             }
 
             $newArray[$key] = $value;
 
-            if (is_array($newArray[$key])) {
+            if (\is_array($newArray[$key])) {
                 self::recoverArrayNumericKeyValues($newArray[$key]);
             }
         }
@@ -141,8 +142,8 @@ class XmlStrategy implements StrategyInterface
      */
     private static function getNumericKeyValue($key)
     {
-        $newKey = str_replace('np_serializer_element_', '', $key);
-        list($type, $index) = explode('_', $newKey);
+        $newKey = \str_replace('np_serializer_element_', '', $key);
+        list($type, $index) = \explode('_', $newKey);
 
         if ('integer' === $type) {
             $index = (int) $index;

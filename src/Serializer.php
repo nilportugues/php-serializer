@@ -77,14 +77,14 @@ class Serializer
      */
     public function __construct(StrategyInterface $strategy)
     {
-        $this->isHHVM = defined('HHVM_VERSION');
+        $this->isHHVM = \defined('HHVM_VERSION');
         if ($this->isHHVM) {
             // @codeCoverageIgnoreStart
-            $this->serializationMap = array_merge(
+            $this->serializationMap = \array_merge(
                 $this->serializationMap,
-                include realpath(dirname(__FILE__).'/Mapping/serialization_hhvm.php')
+                include \realpath(\dirname(__FILE__).'/Mapping/serialization_hhvm.php')
             );
-            $this->unserializationMapHHVM = include realpath(dirname(__FILE__).'/Mapping/unserialization_hhvm.php');
+            $this->unserializationMapHHVM = include \realpath(\dirname(__FILE__).'/Mapping/unserialization_hhvm.php');
             // @codeCoverageIgnoreEnd
         }
         $this->serializationStrategy = $strategy;
@@ -142,15 +142,15 @@ class Serializer
 
         if ($this->isHHVM && ($value instanceof \DateTimeZone || $value instanceof \DateInterval)) {
             // @codeCoverageIgnoreStart
-            return call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
+            return \call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
             // @codeCoverageIgnoreEnd
         }
 
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return $this->serializeObject($value);
         }
 
-        $type = (gettype($value) && $value !== null) ? gettype($value) : 'string';
+        $type = (\gettype($value) && $value !== null) ? \gettype($value) : 'string';
         $func = $this->serializationMap[$type];
 
         return $this->$func($value);
@@ -173,7 +173,7 @@ class Serializer
             );
         }
 
-        if (is_resource($value)) {
+        if (\is_resource($value)) {
             throw new SerializerException('Resource is not supported in Serializer');
         }
     }
@@ -187,7 +187,7 @@ class Serializer
      */
     public function unserialize($value)
     {
-        if (is_array($value) && isset($value[self::SCALAR_TYPE])) {
+        if (\is_array($value) && isset($value[self::SCALAR_TYPE])) {
             return $this->unserializeData($value);
         }
 
@@ -223,7 +223,7 @@ class Serializer
             return $this->unserializeObject($value);
         }
 
-        return array_map([$this, __FUNCTION__], $value);
+        return \array_map([$this, __FUNCTION__], $value);
     }
 
     /**
@@ -235,9 +235,9 @@ class Serializer
     {
         switch ($value[self::SCALAR_TYPE]) {
             case 'integer':
-                return intval($value[self::SCALAR_VALUE]);
+                return \intval($value[self::SCALAR_VALUE]);
             case 'float':
-                return floatval($value[self::SCALAR_VALUE]);
+                return \floatval($value[self::SCALAR_VALUE]);
             case 'boolean':
                 return $value[self::SCALAR_VALUE];
             case 'NULL':
@@ -291,7 +291,7 @@ class Serializer
         if ($this->isDateTimeFamilyObject($className)) {
             if ($this->isHHVM) {
                 // @codeCoverageIgnoreStart
-                return call_user_func_array(
+                return \call_user_func_array(
                     $this->unserializationMapHHVM[$className],
                     [$this, $className, $value]
                 );
@@ -315,7 +315,7 @@ class Serializer
         $isDateTime = false;
 
         foreach ($this->dateTimeClassType as $class) {
-            $isDateTime = $isDateTime || is_subclass_of($className, $class, true) || $class === $className;
+            $isDateTime = $isDateTime || \is_subclass_of($className, $class, true) || $class === $className;
         }
 
         return $isDateTime;
@@ -334,13 +334,13 @@ class Serializer
         }
 
         $obj = (object) $attributes;
-        $serialized = preg_replace(
+        $serialized = \preg_replace(
             '|^O:\d+:"\w+":|',
             'O:'.strlen($className).':"'.$className.'":',
-            serialize($obj)
+            \serialize($obj)
         );
 
-        return unserialize($serialized);
+        return \unserialize($serialized);
     }
 
     /**
@@ -357,7 +357,7 @@ class Serializer
         $this->objectMapping[$this->objectMappingIndex++] = $obj;
         $this->setUnserializedObjectProperties($value, $ref, $obj);
 
-        if (method_exists($obj, '__wakeup')) {
+        if (\method_exists($obj, '__wakeup')) {
             $obj->__wakeup();
         }
 
@@ -393,7 +393,7 @@ class Serializer
      */
     protected function serializeScalar($value)
     {
-        $type = gettype($value);
+        $type = \gettype($value);
         if ($type === 'double') {
             $type = 'float';
         }
@@ -411,7 +411,7 @@ class Serializer
      */
     protected function serializeArray(array $value)
     {
-        if (array_key_exists(self::MAP_TYPE, $value)) {
+        if (\array_key_exists(self::MAP_TYPE, $value)) {
             return $value;
         }
 
@@ -455,7 +455,7 @@ class Serializer
     {
         $paramsToSerialize = $this->getObjectProperties($ref, $value);
         $data = [self::CLASS_IDENTIFIER_KEY => $className];
-        $data += array_map([$this, 'serializeData'], $this->extractObjectData($value, $ref, $paramsToSerialize));
+        $data += \array_map([$this, 'serializeData'], $this->extractObjectData($value, $ref, $paramsToSerialize));
 
         return $data;
     }
@@ -475,7 +475,7 @@ class Serializer
             $props[] = $prop->getName();
         }
 
-        return array_unique(array_merge($props, array_keys(get_object_vars($value))));
+        return \array_unique(\array_merge($props, \array_keys(\get_object_vars($value))));
     }
 
     /**
@@ -530,7 +530,7 @@ class Serializer
                 $property->setAccessible(true);
                 $rp[$property->getName()] = $property->getValue($this);
             }
-            $data = array_merge($rp, $data);
+            $data = \array_merge($rp, $data);
         } while ($rc = $rc->getParentClass());
     }
 }

@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Serializer\InternalClasses;
 
 use DateTimeZone;
@@ -45,7 +46,7 @@ class DateTimeZoneSerializer
         $ref = new ReflectionClass($className);
 
         foreach ($value as &$v) {
-            if (is_array($v)) {
+            if (\is_array($v)) {
                 $v = $serializer->unserialize($v);
             }
         }

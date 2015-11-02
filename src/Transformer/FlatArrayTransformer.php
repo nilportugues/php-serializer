@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Transformer;
 
 class FlatArrayTransformer  extends ArrayTransformer
@@ -32,7 +33,7 @@ class FlatArrayTransformer  extends ArrayTransformer
     {
         $result = [];
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $result = $result + $this->flatten($value, $prefix.$key.'.');
             } else {
                 $result[$prefix.$key] = $value;

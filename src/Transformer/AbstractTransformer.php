@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Transformer;
 
 use InvalidArgumentException;
@@ -23,13 +24,13 @@ abstract class AbstractTransformer implements StrategyInterface
     protected function recursiveUnset(array &$array, array $unwantedKey)
     {
         foreach ($unwantedKey as $key) {
-            if (array_key_exists($key, $array)) {
+            if (\array_key_exists($key, $array)) {
                 unset($array[$key]);
             }
         }
 
         foreach ($array as &$value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $this->recursiveUnset($value, $unwantedKey);
             }
         }
@@ -40,13 +41,13 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     protected function recursiveSetValues(array &$array)
     {
-        if (array_key_exists(Serializer::SCALAR_VALUE, $array)) {
+        if (\array_key_exists(Serializer::SCALAR_VALUE, $array)) {
             $array = $array[Serializer::SCALAR_VALUE];
         }
 
-        if (is_array($array) && !array_key_exists(Serializer::SCALAR_VALUE, $array)) {
+        if (\is_array($array) && !array_key_exists(Serializer::SCALAR_VALUE, $array)) {
             foreach ($array as &$value) {
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     $this->recursiveSetValues($value);
                 }
             }
@@ -58,13 +59,13 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     protected function recursiveFlattenOneElementObjectsToScalarType(array &$array)
     {
-        if (1 === count($array) && is_scalar(end($array))) {
-            $array = array_pop($array);
+        if (1 === \count($array) && \is_scalar(\end($array))) {
+            $array = \array_pop($array);
         }
 
-        if (is_array($array)) {
+        if (\is_array($array)) {
             foreach ($array as &$value) {
-                if (is_array($value)) {
+                if (\is_array($value)) {
                     $this->recursiveFlattenOneElementObjectsToScalarType($value);
                 }
             }
@@ -80,6 +81,6 @@ abstract class AbstractTransformer implements StrategyInterface
      */
     public function unserialize($value)
     {
-        throw new InvalidArgumentException(sprintf('%s does not perform unserializations.', __CLASS__));
+        throw new InvalidArgumentException(\sprintf('%s does not perform unserializations.', __CLASS__));
     }
 }

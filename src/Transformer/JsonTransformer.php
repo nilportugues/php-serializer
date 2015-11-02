@@ -14,7 +14,7 @@ class JsonTransformer extends ArrayTransformer
      */
     public function serialize($value)
     {
-        return json_encode(
+        return \json_encode(
             parent::serialize($value),
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );

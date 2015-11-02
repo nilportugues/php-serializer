@@ -98,7 +98,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
     public function testSerializeResource()
     {
         $this->setExpectedException(SerializerException::class);
-        $this->serializer->serialize(fopen(__FILE__, 'r'));
+        $this->serializer->serialize(\fopen(__FILE__, 'r'));
     }
 
     /**
@@ -213,7 +213,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
 
         $serialized = '{"instance":{"@type":"NilPortugues\\\\Test\\\\Serializer\\\\SupportClasses\\\\EmptyClass"}}';
         $array = $this->serializer->unserialize($serialized);
-        $this->assertTrue(is_array($array));
+        $this->assertTrue(\is_array($array));
         $this->assertInstanceOf(EmptyClass::class, $array['instance']);
     }
 
@@ -273,7 +273,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerializationOfDateTimeImmutable()
     {
-        if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+        if (\version_compare(PHP_VERSION, '5.5.0', '<')) {
             $this->markTestSkipped('Supported for PHP 5.5.0 and above');
         }
 

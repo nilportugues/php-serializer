@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Test\Serializer\Dummy\ComplexObject\ValueObject;
 
 class PostId

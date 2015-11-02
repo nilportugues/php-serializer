@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Transformer;
 
 use DOMDocument;
@@ -48,8 +49,8 @@ class XmlTransformer extends ArrayTransformer
     private function arrayToXml(array &$data, SimpleXMLElement $xmlData)
     {
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                if (is_numeric($key)) {
+            if (\is_array($value)) {
+                if (\is_numeric($key)) {
                     $key = 'sequential-item';
                 }
                 $subnode = $xmlData->addChild($key);
@@ -58,7 +59,7 @@ class XmlTransformer extends ArrayTransformer
             } else {
                 $subnode = $xmlData->addChild("$key", "$value");
 
-                $type = gettype($value);
+                $type = \gettype($value);
                 if ('array' !== $type) {
                     $subnode->addAttribute('type', $type);
                 }

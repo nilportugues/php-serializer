@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace NilPortugues\Serializer\Strategy;
 
 /**
@@ -22,7 +23,7 @@ class JsonStrategy implements StrategyInterface
      */
     public function serialize($value)
     {
-        return json_encode($value, JSON_UNESCAPED_UNICODE);
+        return \json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -32,6 +33,6 @@ class JsonStrategy implements StrategyInterface
      */
     public function unserialize($value)
     {
-        return json_decode($value, true);
+        return \json_decode($value, true);
     }
 }
