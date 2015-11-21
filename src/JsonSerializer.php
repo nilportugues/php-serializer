@@ -8,13 +8,15 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace NilPortugues\Serializer;
 
 use NilPortugues\Serializer\Strategy\JsonStrategy;
 
 class JsonSerializer extends Serializer
 {
+    /**
+     *
+     */
     public function __construct()
     {
         parent::__construct(new JsonStrategy());

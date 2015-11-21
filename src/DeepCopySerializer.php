@@ -8,7 +8,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace NilPortugues\Serializer;
 
 use ReflectionClass;
@@ -24,15 +23,15 @@ class DeepCopySerializer extends Serializer
      */
     protected function serializeObject($value)
     {
-        if ($this->objectStorage->contains($value)) {
-            return $this->objectStorage[$value];
+        if (self::$objectStorage->contains($value)) {
+            return self::$objectStorage[$value];
         }
 
         $reflection = new ReflectionClass($value);
         $className = $reflection->getName();
 
         $serialized = $this->serializeInternalClass($value, $className, $reflection);
-        $this->objectStorage->attach($value, $serialized);
+        self::$objectStorage->attach($value, $serialized);
 
         return $serialized;
     }

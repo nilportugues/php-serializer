@@ -23,21 +23,21 @@ class Serializer
      *
      * @var SplObjectStorage
      */
-    protected $objectStorage;
+    protected static $objectStorage;
 
     /**
      * Object mapping for recursion.
      *
      * @var array
      */
-    protected $objectMapping = [];
+    protected static $objectMapping = [];
 
     /**
      * Object mapping index.
      *
      * @var int
      */
-    protected $objectMappingIndex = 0;
+    protected static $objectMappingIndex = 0;
 
     /**
      * @var \NilPortugues\Serializer\Strategy\StrategyInterface|\NilPortugues\Serializer\Strategy\JsonStrategy
@@ -122,9 +122,9 @@ class Serializer
      */
     protected function reset()
     {
-        $this->objectStorage = new SplObjectStorage();
-        $this->objectMapping = [];
-        $this->objectMappingIndex = 0;
+        self::$objectStorage = new SplObjectStorage();
+        self::$objectMapping = [];
+        self::$objectMappingIndex = 0;
     }
 
     /**
@@ -267,7 +267,7 @@ class Serializer
         }
 
         if ($className[0] === '@') {
-            return $this->objectMapping[substr($className, 1)];
+            return self::$objectMapping[substr($className, 1)];
         }
 
         if (!class_exists($className)) {
@@ -299,7 +299,7 @@ class Serializer
             }
 
             $obj = $this->restoreUsingUnserialize($className, $value);
-            $this->objectMapping[$this->objectMappingIndex++] = $obj;
+            self::$objectMapping[self::$objectMappingIndex++] = $obj;
         }
 
         return $obj;
@@ -354,7 +354,7 @@ class Serializer
         $ref = new ReflectionClass($className);
         $obj = $ref->newInstanceWithoutConstructor();
 
-        $this->objectMapping[$this->objectMappingIndex++] = $obj;
+        self::$objectMapping[self::$objectMappingIndex++] = $obj;
         $this->setUnserializedObjectProperties($value, $ref, $obj);
 
         if (\method_exists($obj, '__wakeup')) {
@@ -432,11 +432,11 @@ class Serializer
      */
     protected function serializeObject($value)
     {
-        if ($this->objectStorage->contains($value)) {
-            return [self::CLASS_IDENTIFIER_KEY => '@'.$this->objectStorage[$value]];
+        if (self::$objectStorage->contains($value)) {
+            return [self::CLASS_IDENTIFIER_KEY => '@'.self::$objectStorage[$value]];
         }
 
-        $this->objectStorage->attach($value, $this->objectMappingIndex++);
+        self::$objectStorage->attach($value, self::$objectMappingIndex++);
 
         $reflection = new ReflectionClass($value);
         $className = $reflection->getName();
