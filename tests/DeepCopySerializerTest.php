@@ -20,6 +20,7 @@ use NilPortugues\Test\Serializer\Dummy\ComplexObject\User;
 use NilPortugues\Test\Serializer\Dummy\ComplexObject\ValueObject\CommentId;
 use NilPortugues\Test\Serializer\Dummy\ComplexObject\ValueObject\PostId;
 use NilPortugues\Test\Serializer\Dummy\ComplexObject\ValueObject\UserId;
+use SplFixedArray;
 
 class DeepCopySerializerTest extends \PHPUnit_Framework_TestCase
 {
@@ -77,5 +78,18 @@ class DeepCopySerializerTest extends \PHPUnit_Framework_TestCase
         $serializedObject = $serializer->serialize($stdClass);
 
         $this->assertEquals($stdClass, $serializer->unserialize($serializedObject));
+    }
+
+    public function testSplFixedArraySerialization()
+    {
+        $splFixedArray = new SplFixedArray(3);
+        $splFixedArray[0] = 1;
+        $splFixedArray[1] = 2;
+        $splFixedArray[2] = 3;
+
+        $serializer = new DeepCopySerializer(new NullStrategy());
+        $serializedObject = $serializer->serialize($splFixedArray);
+
+        $this->assertEquals($splFixedArray, $serializer->unserialize($serializedObject));
     }
 }

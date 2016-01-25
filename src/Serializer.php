@@ -3,6 +3,7 @@
 namespace NilPortugues\Serializer;
 
 use Closure;
+use NilPortugues\Serializer\Serializer\InternalClasses\SplFixedArraySerializer;
 use NilPortugues\Serializer\Strategy\StrategyInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -146,6 +147,10 @@ class Serializer
             // @codeCoverageIgnoreEnd
         }
 
+        if (is_object($value) && $value instanceof \SplFixedArray) {
+            return SplFixedArraySerializer::serialize($this, $value);
+        }
+
         if (\is_object($value)) {
             return $this->serializeObject($value);
         }
@@ -217,6 +222,10 @@ class Serializer
 
         if (isset($value[self::SCALAR_TYPE])) {
             return $this->getScalarValue($value);
+        }
+
+        if (isset($value[self::CLASS_IDENTIFIER_KEY]) && 0 === strcmp($value[self::CLASS_IDENTIFIER_KEY], 'SplFixedArray')) {
+            return SplFixedArraySerializer::unserialize($this, $value[self::CLASS_IDENTIFIER_KEY], $value);
         }
 
         if (isset($value[self::CLASS_IDENTIFIER_KEY])) {
