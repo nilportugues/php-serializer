@@ -12,6 +12,7 @@ use SplObjectStorage;
 class Serializer
 {
     const CLASS_IDENTIFIER_KEY = '@type';
+    const CLASS_PARENT_KEY = '@parent';
     const SCALAR_TYPE = '@scalar';
     const SCALAR_VALUE = '@value';
     const NULL_VAR = null;
@@ -147,7 +148,7 @@ class Serializer
             // @codeCoverageIgnoreEnd
         }
 
-        if (is_object($value) && $value instanceof \SplFixedArray) {
+        if ($this->isInstanceOf($value, 'SplFixedArray')) {
             return SplFixedArraySerializer::serialize($this, $value);
         }
 
@@ -159,6 +160,20 @@ class Serializer
         $func = $this->serializationMap[$type];
 
         return $this->$func($value);
+    }
+
+    /**
+     * Check if a class is instance or extends from the expected instance.
+     *
+     * @param mixed  $value
+     * @param string $classFQN
+     *
+     * @return bool
+     */
+    private function isInstanceOf($value, $classFQN)
+    {
+        return is_object($value)
+        && (strtolower(get_class($value)) === strtolower($classFQN) || \is_subclass_of($value, $classFQN, true));
     }
 
     /**
@@ -224,7 +239,7 @@ class Serializer
             return $this->getScalarValue($value);
         }
 
-        if (isset($value[self::CLASS_IDENTIFIER_KEY]) && 0 === strcmp($value[self::CLASS_IDENTIFIER_KEY], 'SplFixedArray')) {
+        if (isset($value[self::CLASS_PARENT_KEY]) && 0 === strcmp($value[self::CLASS_PARENT_KEY], 'SplFixedArray')) {
             return SplFixedArraySerializer::unserialize($this, $value[self::CLASS_IDENTIFIER_KEY], $value);
         }
 

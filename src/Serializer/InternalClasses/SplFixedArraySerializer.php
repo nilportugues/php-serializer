@@ -3,6 +3,7 @@
 namespace NilPortugues\Serializer\Serializer\InternalClasses;
 
 use NilPortugues\Serializer\Serializer;
+use ReflectionClass;
 use SplFixedArray;
 
 class SplFixedArraySerializer
@@ -17,6 +18,7 @@ class SplFixedArraySerializer
     {
         $toArray = [
             Serializer::CLASS_IDENTIFIER_KEY => get_class($splFixedArray),
+            Serializer::CLASS_PARENT_KEY => 'SplFixedArray',
             Serializer::SCALAR_VALUE => [],
         ];
         foreach ($splFixedArray->toArray() as $key => $field) {
@@ -31,12 +33,21 @@ class SplFixedArraySerializer
      * @param string     $className
      * @param array      $value
      *
-     * @return object
+     * @return mixed
      */
     public static function unserialize(Serializer $serializer, $className, array $value)
     {
         $data = $serializer->unserialize($value[Serializer::SCALAR_VALUE]);
 
-        return $className::fromArray($data);
+        /* @var SplFixedArray $instance */
+        $ref = new ReflectionClass($className);
+        $instance = $ref->newInstanceWithoutConstructor();
+
+        $instance->setSize(count($data));
+        foreach ($data as $k => $v) {
+            $instance[$k] = $v;
+        }
+
+        return $instance;
     }
 }
