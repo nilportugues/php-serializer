@@ -27,7 +27,7 @@ class NullStrategy implements StrategyInterface
     }
 
     /**
-     * @param $value
+     * @param string $value
      *
      * @return array
      */

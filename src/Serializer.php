@@ -552,7 +552,7 @@ class Serializer
             /* @var $property \ReflectionProperty */
             foreach ($rc->getProperties() as $property) {
                 $property->setAccessible(true);
-                $rp[$property->getName()] = $property->getValue($this);
+                $rp[$property->getName()] = $property->getValue($value);
             }
             $data = \array_merge($rp, $data);
         } while ($rc = $rc->getParentClass());
