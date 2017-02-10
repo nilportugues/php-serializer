@@ -63,11 +63,6 @@ class Serializer
     ];
 
     /**
-     * @var bool
-     */
-    protected $isHHVM;
-
-    /**
      * Hack specific serialization classes.
      *
      * @var array
@@ -79,16 +74,7 @@ class Serializer
      */
     public function __construct(StrategyInterface $strategy)
     {
-        $this->isHHVM = \defined('HHVM_VERSION');
-        if ($this->isHHVM) {
-            // @codeCoverageIgnoreStart
-            $this->serializationMap = \array_merge(
-                $this->serializationMap,
-                include \realpath(\dirname(__FILE__).'/Mapping/serialization_hhvm.php')
-            );
-            $this->unserializationMapHHVM = include \realpath(\dirname(__FILE__).'/Mapping/unserialization_hhvm.php');
-            // @codeCoverageIgnoreEnd
-        }
+
         $this->serializationStrategy = $strategy;
     }
 
@@ -141,12 +127,6 @@ class Serializer
     protected function serializeData($value)
     {
         $this->guardForUnsupportedValues($value);
-
-        if ($this->isHHVM && ($value instanceof \DateTimeZone || $value instanceof \DateInterval)) {
-            // @codeCoverageIgnoreStart
-            return \call_user_func_array($this->serializationMap[get_class($value)], [$this, $value]);
-            // @codeCoverageIgnoreEnd
-        }
 
         if ($this->isInstanceOf($value, 'SplFixedArray')) {
             return SplFixedArraySerializer::serialize($this, $value);
@@ -313,15 +293,6 @@ class Serializer
         $obj = null;
 
         if ($this->isDateTimeFamilyObject($className)) {
-            if ($this->isHHVM) {
-                // @codeCoverageIgnoreStart
-                return \call_user_func_array(
-                    $this->unserializationMapHHVM[$className],
-                    [$this, $className, $value]
-                );
-                // @codeCoverageIgnoreEnd
-            }
-
             $obj = $this->restoreUsingUnserialize($className, $value);
             self::$objectMapping[self::$objectMappingIndex++] = $obj;
         }
