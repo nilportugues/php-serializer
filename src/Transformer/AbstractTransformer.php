@@ -56,17 +56,28 @@ abstract class AbstractTransformer implements StrategyInterface
 
     /**
      * @param array $array
+     * @param null $parentKey
+     * @param null $currentKey
      */
-    protected function recursiveFlattenOneElementObjectsToScalarType(array &$array)
+    protected function recursiveFlattenOneElementObjectsToScalarType(array &$array, $parentKey = null, $currentKey = null)
     {
         if (1 === \count($array) && \is_scalar(\end($array))) {
-            $array = \array_pop($array);
+            if ($parentKey == $currentKey) {
+                $array = \array_pop($array);
+            }
         }
 
         if (\is_array($array)) {
-            foreach ($array as &$value) {
+            foreach ($array as $parentKey => &$value) {
+
                 if (\is_array($value)) {
-                    $this->recursiveFlattenOneElementObjectsToScalarType($value);
+                    $key = null;
+                    foreach($value as $key => $v) {
+                        if (is_array($v)) {
+                            $this->recursiveFlattenOneElementObjectsToScalarType($v, $parentKey, $key);
+                        }
+                    }
+                    $this->recursiveFlattenOneElementObjectsToScalarType($value, $parentKey, $key);
                 }
             }
         }

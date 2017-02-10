@@ -23,6 +23,46 @@ use NilPortugues\Test\Serializer\Dummy\ComplexObject\ValueObject\UserId;
 
 class JsonTransformerTest extends \PHPUnit_Framework_TestCase
 {
+
+    public function testSerializationObjectWithArrayOfOneAttribute()
+    {
+        $object = new \stdClass();
+        $object->payload = ['userId' => 1];
+
+        $serializer = new DeepCopySerializer(new JsonTransformer());
+
+        $expected = <<<STRING
+{
+    "payload": {
+        "userId": 1
+    }
+}
+STRING;
+
+        $this->assertEquals($expected, $serializer->serialize($object));
+    }
+
+    public function testSerializationObjectWithObjectOfOneAttribute()
+    {
+        $internal = new \stdClass();
+        $internal->userId = 1;
+
+        $object = new \stdClass();
+        $object->payload = $internal;
+
+        $serializer = new DeepCopySerializer(new JsonTransformer());
+
+        $expected = <<<STRING
+{
+    "payload": {
+        "userId": 1
+    }
+}
+STRING;
+
+        $this->assertEquals($expected, $serializer->serialize($object));
+    }
+
     public function testSerialization()
     {
         $object = $this->getObject();
